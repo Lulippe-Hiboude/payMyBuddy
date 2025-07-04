@@ -2,6 +2,7 @@ package com.lulippe.paymybuddy;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @SpringBootApplication
 public class PayMyBuddyApplication {

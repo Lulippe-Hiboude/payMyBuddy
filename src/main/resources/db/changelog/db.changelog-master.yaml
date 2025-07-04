@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changelog-2025-06-27-create-user-and-transaction-tables.sql
+      context: dev
