@@ -1,10 +1,10 @@
 -- liquibase formatted sql
 
---changeset lulippe:test-1
---comment PMB-3-Create user and transaction tables for test schema
+--changeset lulippe:1
+--comment PMB-3-Create user and transaction tables
 CREATE TABLE IF NOT EXISTS app_user
 (
-    user_id  NUMERIC      NOT NULL PRIMARY KEY,
+    user_id  BIGSERIAL    NOT NULL PRIMARY KEY,
     username VARCHAR(50)  NOT NULL UNIQUE,
     email    VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS user_friend
 
 CREATE TABLE IF NOT EXISTS transactions
 (
-    transaction_id INTEGER        NOT NULL PRIMARY KEY,
+    transaction_id BIGSERIAL    NOT NULL PRIMARY KEY,
     sender_id      INTEGER        NOT NULL,
     receiver_id    INTEGER        NOT NULL,
     description    VARCHAR(255),

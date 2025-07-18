@@ -1,5 +1,6 @@
 package com.lulippe.paymybuddy.persistence.entities;
 
+import com.lulippe.paymybuddy.persistence.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +17,7 @@ import java.util.Set;
 public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "user_id",nullable = false)
     private Long userId;
 
     @Column(name = "username", nullable = false, unique = true, length = 50)
@@ -28,11 +29,13 @@ public class AppUser {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
-    private String role;
+    private Role role;
 
     @Column(name = "account", nullable = false, precision = 15, scale = 2)
-    private BigDecimal account;
+    @Builder.Default
+    private BigDecimal account = BigDecimal.ZERO;
 
     @ManyToMany
     @JoinTable(
