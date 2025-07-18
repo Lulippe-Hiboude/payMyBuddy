@@ -2,7 +2,8 @@ package com.lulippe.paymybuddy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lulippe.paymybuddy.TestSecurityConfig;
-import com.lulippe.paymybuddy.exception.EntityAlreadyExistsException;
+import com.lulippe.paymybuddy.api.controller.AuthController;
+import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
 import com.lulippe.paymybuddy.service.AuthService;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
 import org.junit.jupiter.api.DisplayName;

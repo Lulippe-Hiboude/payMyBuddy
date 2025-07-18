@@ -1,6 +1,6 @@
 package com.lulippe.paymybuddy.service;
 
-import com.lulippe.paymybuddy.exception.EntityAlreadyExistsException;
+import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

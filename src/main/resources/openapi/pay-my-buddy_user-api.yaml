@@ -53,12 +53,15 @@ components:
       properties:
         username:
           type: string
+          minLength: 1
           description: "the username of the user"
         email:
           type: string
+          minLength: 1
           description: "the mail of the user"
         password:
           type: string
+          minLength: 1
           description: "the password of the user"
         role:
           type: string
