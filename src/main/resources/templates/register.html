@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+
+<head th:replace="fragment/header :: commonHeader('Register - Pay My Buddy')">
+    <link rel="stylesheet" href="/css/register.css">
+</head>
+
+<body>
+<div class="main-container">
+    <div class="header-box" role="banner">
+        <h1>
+            Pay My Buddy
+        </h1>
+    </div>
+
+
+    <div class="form-box">
+        <div class="form-group">
+            <label for="username">Nom d'utilisateur</label>
+            <input type="text" id="username" placeholder="Username" name="username" required/>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Mail</label>
+            <input type="email" id="email" placeholder="Mail" name="email" required/>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" placeholder="Mot de passe" name="password" required/>
+        </div>
+
+        <button class="submit-button" onclick="register()">S'inscrire</button>
+        <div id="responseMessage" class="message"></div>
+    </div>
+</div>
+
+<script>
+    async function register() {
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (!username || !email || !password) {
+            alert("Tous les champs doivent être remplis!");
+            return;
+        }
+
+        const data = {username, email, password, role: "USER"};
+
+        try {
+            const response = await fetch('/auth/register/v0', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const messageBox = document.getElementById('responseMessage');
+
+            if (response.status === 201) {
+                messageBox.textContent = await response.text();
+                messageBox.className = "message";
+                setTimeout(() => {
+                    window.location.href="/auth/login";
+                },1000);
+            } else {
+                const errorMsg = await response.text();
+                messageBox.textContent = "Erreur : " + errorMsg;
+                messageBox.className = "error";
+                messageBox.style.color = "red";
+            }
+        } catch (error) {
+            document.getElementById('responseMessage').textContent = "Erreur réseau : " + error;
+        }
+    }
+</script>
+
+</body>
+</html>

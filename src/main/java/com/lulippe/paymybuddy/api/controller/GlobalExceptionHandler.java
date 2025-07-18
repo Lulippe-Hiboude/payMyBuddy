@@ -1,7 +1,7 @@
-package com.lulippe.paymybuddy.controller;
+package com.lulippe.paymybuddy.api.controller;
 
-import com.lulippe.paymybuddy.exception.EntityAlreadyExistsException;
-import com.lulippe.paymybuddy.exception.InvalidDataException;
+import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
+import com.lulippe.paymybuddy.api.exception.InvalidDataException;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

@@ -1,6 +1,6 @@
 package com.lulippe.paymybuddy.service;
 
-import com.lulippe.paymybuddy.exception.EntityAlreadyExistsException;
+import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
 import com.lulippe.paymybuddy.mapper.AppUserMapper;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.repository.AppUserRepository;

@@ -1,4 +1,4 @@
-package com.lulippe.paymybuddy.controller;
+package com.lulippe.paymybuddy.api.controller;
 
 import com.lulippe.paymybuddy.service.AuthService;
 import com.lulippe.paymybuddy.user.api.AuthentificationApi;
