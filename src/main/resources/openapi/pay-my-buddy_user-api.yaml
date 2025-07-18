@@ -1,0 +1,68 @@
+openapi: 3.0.3
+info:
+  title: PayMyBuddy User api
+  description: PayMyBuddy User api prototype
+  version: 0.1.0
+servers:
+  - url: "/api"
+    description: "Current"
+  - url: "http://localhost:8080"
+    description: "localhost"
+tags:
+  - name: "User"
+    description: "Everything for PayMyBuddy about the user"
+paths:
+  /auth/register/v0:
+    post:
+      tags:
+        - "Authentification"
+      summary: "Register a new appUser"
+      operationId: "registerNewUser"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: "User successfully register"
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "user successfully register"
+        '400':
+          description: "Bad Request - Invalid input"
+        '409':
+          description: "Conflict"
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "A user with this username or email already exists"
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+        - role
+      properties:
+        username:
+          type: string
+          description: "the username of the user"
+        email:
+          type: string
+          description: "the mail of the user"
+        password:
+          type: string
+          description: "the password of the user"
+        role:
+          type: string
+          description: "The role of the user"
+          enum: [USER]
+          example: "USER"
+
