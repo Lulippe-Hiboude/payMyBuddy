@@ -24,10 +24,10 @@ public class AppUserDetailsService implements UserDetailsService {
     private final AppUserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final AppUser appUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("username not found" + username));
-        return new User(appUser.getUsername(),appUser.getPassword(),getGrantedAuthorities(appUser.getRole().getRoleName()));
+    public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
+        final AppUser appUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("username not found" + email));
+        return new User(appUser.getEmail(),appUser.getPassword(),getGrantedAuthorities(appUser.getRole().getRoleName()));
     }
 
     private List<GrantedAuthority> getGrantedAuthorities(String role) {

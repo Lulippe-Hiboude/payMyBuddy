@@ -25,7 +25,7 @@ class AppUserDetailsServiceTest {
     private AppUserDetailsService appUserDetailsService;
 
     @Test
-    @DisplayName("should load user by username")
+    @DisplayName("should load user by email")
     void shouldLoadUserByUsername() {
         //given
         final String username = "username";
@@ -38,13 +38,13 @@ class AppUserDetailsServiceTest {
                 .role(userRole)
                 .password(hashedPassword)
                 .build();
-        given(appUserRepository.findByUsername(username)).willReturn(Optional.of(appUser));
+        given(appUserRepository.findByEmail(username)).willReturn(Optional.of(appUser));
         //when
         final UserDetails userDetails = appUserDetailsService.loadUserByUsername(username);
 
         //then
         assertNotNull(userDetails);
-        assertEquals(username, userDetails.getUsername());
+        assertEquals(email, userDetails.getUsername());
         assertEquals(hashedPassword, userDetails.getPassword());
         assertNotNull(userDetails.getAuthorities());
     }
@@ -54,7 +54,7 @@ class AppUserDetailsServiceTest {
     void shouldThrowUsernameNotFoundException() {
         //given
         final String username = "username";
-        given(appUserRepository.findByUsername(username)).willReturn(Optional.empty());
+        given(appUserRepository.findByEmail(username)).willReturn(Optional.empty());
 
         //when & then
         assertThrows(UsernameNotFoundException.class, () -> appUserDetailsService.loadUserByUsername(username));
