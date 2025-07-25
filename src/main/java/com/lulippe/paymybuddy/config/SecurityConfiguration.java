@@ -34,11 +34,18 @@ public class SecurityConfiguration {
                                 "/webjars/**",
                                 "/swagger-ui.html",
                                 "/auth/register",
-                                "/auth/register/v0")
+                                "/auth/register/v0",
+                                "/auth/login",
+                                "/auth/login?error"
+                        )
                         .permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form -> form
+                        .loginPage("/auth/login")
+                        .loginProcessingUrl("/auth/login")
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/auth/login?error"))
                 .httpBasic(Customizer.withDefaults())
                 .build();
     }
