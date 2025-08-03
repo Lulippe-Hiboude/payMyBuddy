@@ -1,6 +1,7 @@
 package com.lulippe.paymybuddy.api.controller;
 
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
+import com.lulippe.paymybuddy.api.exception.InexistantEntityException;
 import com.lulippe.paymybuddy.api.exception.InvalidDataException;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
@@ -25,5 +26,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleBadRequestException(final Exception e) {
         logRequestFailed(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler({InexistantEntityException.class})
+    public ResponseEntity<String> handleInexistantEntityException(final InexistantEntityException e) {
+        logRequestFailed(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 }
