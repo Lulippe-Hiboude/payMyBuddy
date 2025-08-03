@@ -1,0 +1,49 @@
+openapi: 3.0.3
+info:
+  title: PayMyBuddy Transaction api
+  description: PayMyBuddy Transaction api prototype
+  version: 0.1.0
+servers:
+  - url: "/api"
+    description: "Current"
+  - url: "http://localhost:8080"
+    description: "localhost"
+tags:
+  - name: "Transaction"
+    description: "Everything for PayMyBuddy about the transaction"
+paths:
+  /transactions/v0/me:
+    get:
+      tags:
+        - "Transactions"
+      summary: "Get the transaction of a connected user "
+      operationId: "getUserTransactionList"
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: "List of all transaction of a user"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transfer'
+        '401':
+          description: "authentification failed"
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+  schemas:
+    Transfer:
+      type: object
+      properties:
+        friendName:
+          type: string
+        description:
+          type: string
+        amount:
+          type: string

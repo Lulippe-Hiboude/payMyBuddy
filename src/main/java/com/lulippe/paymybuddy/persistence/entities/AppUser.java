@@ -56,5 +56,4 @@ public class AppUser {
     @ToString.Exclude
     @Builder.Default
     private Set<Transaction> receivedTransactions = new HashSet<>();
-
 }

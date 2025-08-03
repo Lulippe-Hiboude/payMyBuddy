@@ -1,6 +1,7 @@
 package com.lulippe.paymybuddy.service;
 
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
+import com.lulippe.paymybuddy.api.exception.InexistantEntityException;
 import com.lulippe.paymybuddy.mapper.AppUserMapper;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.repository.AppUserRepository;
@@ -23,10 +24,15 @@ public class UserService {
         }
     }
 
-    public void createAppUser(String username, String email, String hashedPassword, RegisterRequest.RoleEnum role) {
+    public void createAppUser(final String username, final String email, final String hashedPassword, final RegisterRequest.RoleEnum role) {
         final AppUser appUser = AppUserMapper.INSTANCE.ToAppUser(username, email, hashedPassword, role);
         log.debug("AppUser to save: {}", appUser);
         appUserRepository.save(appUser);
         log.debug("Created Information for AppUser: {}", appUser);
+    }
+
+    public AppUser getAppUserByEmail(final String email) {
+        return appUserRepository.findByEmail(email)
+                .orElseThrow(() -> new InexistantEntityException("User with email " + email + " does not exist"));
     }
 }

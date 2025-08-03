@@ -27,10 +27,10 @@ public class AppUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
         final AppUser appUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("username not found" + email));
-        return new User(appUser.getEmail(),appUser.getPassword(),getGrantedAuthorities(appUser.getRole().getRoleName()));
+        return new User(appUser.getEmail(), appUser.getPassword(), getGrantedAuthorities(appUser.getRole().getRoleName()));
     }
 
-    private List<GrantedAuthority> getGrantedAuthorities(String role) {
+    private List<GrantedAuthority> getGrantedAuthorities(final String role) {
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(role));
         log.debug("role : {}", role);

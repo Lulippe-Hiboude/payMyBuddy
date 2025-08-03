@@ -1,0 +1,74 @@
+package com.lulippe.paymybuddy.api.controller;
+
+import com.lulippe.paymybuddy.api.exception.InexistantEntityException;
+import com.lulippe.paymybuddy.service.TransactionService;
+import com.lulippe.paymybuddy.transaction.model.Transfer;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(controllers = TransactionController.class)
+@AutoConfigureMockMvc
+class TransactionControllerTest {
+    @Autowired
+    private MockMvc mockMvc;
+
+
+    @MockitoBean
+    private TransactionService transactionService;
+
+    @Test
+    @WithMockUser(username = "test@test.com", roles = "USER")
+    @DisplayName("should return a list of transfers")
+    void shouldReturnListOfTransfers() throws Exception {
+        //given
+        final String email = "test@test.com";
+        final String friend = "friend";
+        final String amount = "10.00";
+        final String description = "description";
+
+        final Transfer transfer = new Transfer();
+        transfer.setFriendName(friend);
+        transfer.setAmount(amount);
+        transfer.setDescription(description);
+
+        final List<Transfer> transfers = Collections.singletonList(transfer);
+        given(transactionService.getUserSentTransactionList(email)).willReturn(transfers);
+
+        //when
+        mockMvc.perform(get("/transactions/v0/me"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].friendName").value(friend))
+                .andExpect(jsonPath("$[0].amount").value(amount))
+                .andExpect(jsonPath("$[0].description").value(description));
+    }
+
+    @Test
+    @WithMockUser(username = "test@test.com", roles = "USER")
+    @DisplayName("should throw EntityNotFoundException")
+    void shouldThrowEntityNotFoundException() throws Exception {
+        //given
+        final String email = "test@test.com";
+        doThrow(new InexistantEntityException("User with email " + email + " does not exist")).when(transactionService).getUserSentTransactionList(email);
+
+        //when & then
+        mockMvc.perform(get("/transactions/v0/me"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("User with email test@test.com does not exist"));
+    }
+}
