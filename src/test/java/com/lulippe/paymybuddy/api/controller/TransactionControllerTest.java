@@ -1,6 +1,6 @@
 package com.lulippe.paymybuddy.api.controller;
 
-import com.lulippe.paymybuddy.api.exception.InexistantEntityException;
+import com.lulippe.paymybuddy.api.exception.NonexistentEntityException;
 import com.lulippe.paymybuddy.service.TransactionService;
 import com.lulippe.paymybuddy.transaction.model.Transfer;
 import org.junit.jupiter.api.DisplayName;
@@ -64,7 +64,7 @@ class TransactionControllerTest {
     void shouldThrowEntityNotFoundException() throws Exception {
         //given
         final String email = "test@test.com";
-        doThrow(new InexistantEntityException("User with email " + email + " does not exist")).when(transactionService).getUserSentTransactionList(email);
+        doThrow(new NonexistentEntityException("User with email " + email + " does not exist")).when(transactionService).getUserSentTransactionList(email);
 
         //when & then
         mockMvc.perform(get("/transactions/v0/me"))

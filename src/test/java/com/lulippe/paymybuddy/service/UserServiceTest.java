@@ -1,12 +1,11 @@
 package com.lulippe.paymybuddy.service;
 
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
-import com.lulippe.paymybuddy.api.exception.InexistantEntityException;
+import com.lulippe.paymybuddy.api.exception.NonexistentEntityException;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.enums.Role;
 import com.lulippe.paymybuddy.persistence.repository.AppUserRepository;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -108,7 +107,7 @@ class UserServiceTest {
         given(appUserRepository.findByEmail(email)).willReturn(Optional.empty());
 
         //when & then
-        InexistantEntityException exception = assertThrows (InexistantEntityException.class, () ->userService.getAppUserByEmail(email));
+        NonexistentEntityException exception = assertThrows (NonexistentEntityException.class, () ->userService.getAppUserByEmail(email));
         assertEquals("User with email test@email.com does not exist",exception.getMessage());
     }
 }

@@ -20,7 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
     private final UserDetailsService userDetailsService;
-
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -40,6 +40,9 @@ public class SecurityConfiguration {
                         )
                         .permitAll()
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(restAuthenticationEntryPoint)
                 )
                 .formLogin(form -> form
                         .loginPage("/auth/login")
