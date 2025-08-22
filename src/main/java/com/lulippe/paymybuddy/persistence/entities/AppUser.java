@@ -6,10 +6,12 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Builder
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,12 +19,14 @@ import java.util.Set;
 public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     @Column(name = "user_id",nullable = false)
     private Long userId;
 
     @Column(name = "username", nullable = false, unique = true, length = 50)
     private String username;
 
+    @EqualsAndHashCode.Include
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 

@@ -7,9 +7,9 @@ import com.lulippe.paymybuddy.service.BankTransferService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
+
+import static com.lulippe.paymybuddy.utils.AuthenticationUtil.getAuthenticatedUserEmail;
 
 @Slf4j
 @RestController
@@ -20,8 +20,7 @@ public class BankTransferController implements BankTransferApi {
 
     @Override
     public ResponseEntity<BankTransferResponse> transferFromBank(final BankTransferRequest bankTransferRequest) {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final String email = authentication.getName();
+        final String email = getAuthenticatedUserEmail();
         log.info("start bank transfer for user {}", email);
         final BankTransferResponse bankTransferResponse = bankTransferService.performBankTransfer(bankTransferRequest, email);
         return ResponseEntity.ok(bankTransferResponse);

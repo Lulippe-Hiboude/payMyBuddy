@@ -47,4 +47,30 @@ public class UserService {
         user.setAccount(newBalance);
         return appUserRepository.save(user);
     }
+
+    public void handleFriendAddition(final String userEmail, final String friendEmail) {
+        final AppUser currentAppUser = getAppUserByEmail(userEmail);
+        final AppUser friendAppUser = getAppUserByEmail(friendEmail);
+        ensureFriendValidity(currentAppUser,friendAppUser);
+        processAddFriendRequest(currentAppUser, friendAppUser);
+    }
+
+    private void ensureFriendValidity(final AppUser currentAppUser, final AppUser friendAppUser) {
+        if (friendAppUser.equals(currentAppUser)) {
+            throw new IllegalArgumentException("You cannot add yourself as a friend! that is sad :(");
+        }
+
+        ensureFriendNotAlreadyAdded(currentAppUser, friendAppUser);
+    }
+
+    private void processAddFriendRequest(final AppUser currentAppUser, final AppUser friendAppUser) {
+        currentAppUser.getFriends().add(friendAppUser);
+        appUserRepository.save(currentAppUser);
+    }
+
+    private void ensureFriendNotAlreadyAdded(final AppUser currentAppUser, final AppUser friendAppUser) {
+        if(currentAppUser.getFriends().contains(friendAppUser)) {
+            throw new EntityAlreadyExistsException("Friend already added in current user friend list : " + friendAppUser.getEmail());
+        }
+    }
 }

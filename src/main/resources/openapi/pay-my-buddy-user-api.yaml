@@ -15,7 +15,7 @@ paths:
   /auth/register/v0:
     post:
       tags:
-        - "Authentification"
+        - "Authentication"
       summary: "Register a new appUser"
       operationId: "registerNewUser"
       requestBody:
@@ -41,7 +41,47 @@ paths:
               schema:
                 type: string
                 example: "A user with this username or email already exists"
+  /users/connections/v0:
+    post:
+      tags:
+        - "Users Connections"
+      summary: "Add a new friend to user's friend list"
+      operationId: "addNewFriend"
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: friendEmail
+          in : query
+          required: true
+          schema:
+            type: string
+            format: email
+            example: friend@example.com
+      responses:
+        '200' :
+          description: "friend added successfully"
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "user successfully register"
+        '400' :
+          description: "Bad Request - Invalid input"
+        '409':
+          description: "Conflict"
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "already add as a friend"
+        '401' :
+          description: "authentication required"
 components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
   schemas:
     RegisterRequest:
       type: object

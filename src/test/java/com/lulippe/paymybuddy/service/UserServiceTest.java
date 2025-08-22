@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -135,5 +135,96 @@ class UserServiceTest {
         final AppUser updateUser = userArgumentCaptor.getValue();
         assertEquals(email,updateUser.getEmail());
         assertEquals(new BigDecimal("30.13"),updateUser.getAccount());
+    }
+
+    @Test
+    @DisplayName("should add a new friend")
+    void shouldAddNewFriend() {
+        //given
+        final String userEmail = "test@email.com";
+        final String friendEmail = "friend@email.com";
+        final Set<AppUser> userFriends = new HashSet<>();
+        final Set<AppUser> friendFriends = new HashSet<>();
+        final String userPassword = "hashedPassword";
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .build();
+        final AppUser friendUser = AppUser.builder()
+                .email(friendEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(friendFriends)
+                .build();
+        given(appUserRepository.findByEmail(userEmail)).willReturn(Optional.of(currentUser));
+        given(appUserRepository.findByEmail(friendEmail)).willReturn(Optional.of(friendUser));
+
+        //when
+        userService.handleFriendAddition(userEmail,friendEmail);
+
+        //then
+        verify(appUserRepository,(times(1))).save(userArgumentCaptor.capture());
+        final AppUser updateUser = userArgumentCaptor.getValue();
+        assertEquals(userEmail,updateUser.getEmail());
+        assertNotNull(updateUser.getFriends());
+        assertTrue(updateUser.getFriends().contains(friendUser));
+    }
+
+    @Test
+    @DisplayName("should throw an IllegalArgumentException if self adding")
+    void shouldThrowIllegalArgumentExceptionIfSelfAdding() {
+        //given
+        final String userEmail = "test@email.com";
+        final Set<AppUser> userFriends = new HashSet<>();
+        final String userPassword = "hashedPassword";
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .build();
+        given(appUserRepository.findByEmail(userEmail)).willReturn(Optional.of(currentUser));
+        given(appUserRepository.findByEmail(userEmail)).willReturn(Optional.of(currentUser));
+
+        //when
+        assertThrows(IllegalArgumentException.class, () -> userService.handleFriendAddition(userEmail,userEmail));
+    }
+
+    @Test
+    @DisplayName("should throw EntityAlreadyExistsException if friend already added in friendList")
+    void shouldThrowEntityAlreadyExistsExceptionIfFriendAlreadyAddedInFriendList() {
+        //given
+        final String userEmail = "test@email.com";
+        final String friendEmail = "friend@email.com";
+        final String userPassword = "hashedPassword";
+        final Set<AppUser> friendFriends = new HashSet<>();
+        final AppUser friendUser = AppUser.builder()
+                .email(friendEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(friendFriends)
+                .build();
+        final Set<AppUser> userFriends = new HashSet<>();
+        userFriends.add(friendUser);
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .build();
+
+        given(appUserRepository.findByEmail(userEmail)).willReturn(Optional.of(currentUser));
+        given(appUserRepository.findByEmail(friendEmail)).willReturn(Optional.of(friendUser));
+
+        //when
+        assertThrows(EntityAlreadyExistsException.class, () ->userService.handleFriendAddition(userEmail,friendEmail));
+
     }
 }

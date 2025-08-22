@@ -1,7 +1,7 @@
 package com.lulippe.paymybuddy.api.controller;
 
 import com.lulippe.paymybuddy.service.AuthService;
-import com.lulippe.paymybuddy.user.api.AuthentificationApi;
+import com.lulippe.paymybuddy.user.api.AuthenticationApi;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class
-AuthController implements AuthentificationApi {
+public class AuthController implements AuthenticationApi {
     private final AuthService authService;
 
     @Override
