@@ -2,11 +2,11 @@ package com.lulippe.paymybuddy.service;
 
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
 import com.lulippe.paymybuddy.api.exception.InexistantEntityException;
+import com.lulippe.paymybuddy.bankTransfer.model.BankTransferRequest;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.enums.Role;
 import com.lulippe.paymybuddy.persistence.repository.AppUserRepository;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -110,5 +110,30 @@ class UserServiceTest {
         //when & then
         InexistantEntityException exception = assertThrows (InexistantEntityException.class, () ->userService.getAppUserByEmail(email));
         assertEquals("User with email test@email.com does not exist",exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should perform Bank Transfer with half even rounding")
+    void shouldPerformBankTransfer() {
+        //given
+        final String email = "test@email.com";
+        final AppUser user = AppUser.builder()
+                .email(email)
+                .role(Role.USER)
+                .password("hashedPassword")
+                .account(BigDecimal.TEN)
+                .build();
+        final BankTransferRequest request = new BankTransferRequest();
+        request.setAmount(20.126);
+        request.setBankHolder("testBankHolder");
+
+        //when
+        userService.performBankTransfer(user,request);
+
+        //then
+        verify(appUserRepository,(times(1))).save(userArgumentCaptor.capture());
+        final AppUser updateUser = userArgumentCaptor.getValue();
+        assertEquals(email,updateUser.getEmail());
+        assertEquals(new BigDecimal("30.13"),updateUser.getAccount());
     }
 }
