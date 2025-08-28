@@ -1,5 +1,6 @@
 package com.lulippe.paymybuddy.mapper;
 
+import com.lulippe.paymybuddy.bankTransfer.model.BankTransferResponse;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.enums.Role;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
@@ -18,6 +19,10 @@ public interface AppUserMapper {
     @Mapping(target = "userId", ignore = true)
     AppUser ToAppUser(final String username, final String email, final String hashedPassword, final RegisterRequest.RoleEnum roleEnum);
 
+    @Mapping(target = "receiver", source = "username")
+    @Mapping(target = "amount", source = "account")
+    BankTransferResponse ToBankTransferResponse(final AppUser appUser);
+
     @Named("mapRoleEnumToRole")
     default Role mapRoleEnumToRole(final RegisterRequest.RoleEnum roleEnum) {
         if (roleEnum == null) {
@@ -25,5 +30,4 @@ public interface AppUserMapper {
         }
         return Role.valueOf(roleEnum.name());
     }
-
 }

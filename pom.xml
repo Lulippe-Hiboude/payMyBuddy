@@ -287,7 +287,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/openapi/pay-my-buddy_user-api.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/pay-my-buddy-user-api.yaml</inputSpec>
                             <apiPackage>com.lulippe.paymybuddy.user.api</apiPackage>
                             <modelPackage>com.lulippe.paymybuddy.user.model</modelPackage>
                             <generatorName>spring</generatorName>
@@ -312,7 +312,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/openapi/pay-my-buddy_transaction-api.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/pay-my-buddy-transaction-api.yaml</inputSpec>
                             <apiPackage>com.lulippe.paymybuddy.transaction.api</apiPackage>
                             <modelPackage>com.lulippe.paymybuddy.transaction.model</modelPackage>
                             <generatorName>spring</generatorName>
@@ -331,9 +331,33 @@
                             </additionalProperties>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>BankTransfer</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/pay-my-buddy-bank-transfer-api.yaml</inputSpec>
+                            <apiPackage>com.lulippe.paymybuddy.bankTransfer.api</apiPackage>
+                            <modelPackage>com.lulippe.paymybuddy.bankTransfer.model</modelPackage>
+                            <generatorName>spring</generatorName>
+                            <generateModelTests>true</generateModelTests>
+                            <generateModelDocumentation>true</generateModelDocumentation>
+                            <generateApiTests>true</generateApiTests>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <configOptions>
+                                <useTags>true</useTags>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <interfaceOnly>true</interfaceOnly>
+                            </configOptions>
+                            <additionalProperties>
+                                <additionalProperty>removeEnumValuePrefix=false</additionalProperty>
+                            </additionalProperties>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

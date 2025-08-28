@@ -1,0 +1,81 @@
+openapi: 3.0.3
+info:
+  title: PayMyBuddy User api
+  description: PayMyBuddy User api prototype
+  version: 0.1.0
+servers:
+  - url: "/api"
+    description: "Current"
+  - url: "http://localhost:8080"
+    description: "localhost"
+tags:
+  - name: "BankTransfer"
+    description: "Operations for transferring money between bank accounts and PayMyBuddy"
+paths:
+  /transfer-from-bank/v0:
+    post:
+      tags:
+        - "BankTransfer"
+      summary: Transfer money from bank account to PayMyBuddy balance
+      operationId: "transferFromBank"
+      security:
+        - cookieAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankTransferRequest'
+      responses:
+        '200':
+          description: "OK - bank transfer successful"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankTransferResponse'
+        '404':
+          description: "Not found - no user found with this email address"
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+  schemas:
+    BankTransferRequest:
+      type: object
+      required:
+        - bankHolder
+        - iban
+        - amount
+      properties:
+        bankHolder:
+          type: string
+          description: "the firstname and lastname of the bank account holder"
+        iban:
+          type: string
+          description: "the iban of the account"
+        amount:
+          type: number
+          format: double
+          description: "the amount to transfer"
+          example: 20.00
+    BankTransferResponse:
+      type: object
+      properties:
+        amount:
+          type: string
+          description: "transferred amount"
+          example: "20.00"
+        receiver:
+          type: string
+          description: "The PayMyBuddy user who received the transfer"
