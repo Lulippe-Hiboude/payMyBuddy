@@ -1,7 +1,7 @@
 package com.lulippe.paymybuddy.service;
 
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
-import com.lulippe.paymybuddy.api.exception.InexistantEntityException;
+import com.lulippe.paymybuddy.api.exception.NonexistentEntityException;
 import com.lulippe.paymybuddy.bankTransfer.model.BankTransferRequest;
 import com.lulippe.paymybuddy.mapper.AppUserMapper;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +38,26 @@ public class UserService {
 
     public AppUser getAppUserByEmail(final String email) {
         return appUserRepository.findByEmail(email)
-                .orElseThrow(() -> new InexistantEntityException("User with email " + email + " does not exist"));
+                .orElseThrow(() -> new NonexistentEntityException("User with email " + email + " does not exist"));
+    }
+
+    public void checkIfReceiverIsAFriend(final AppUser receiverAppUser, final AppUser senderAppUser) {
+        final Set<AppUser> friends = senderAppUser.getFriends();
+
+        if (!friends.contains(receiverAppUser)) {
+            log.debug("Receiver {} is not a friend", receiverAppUser.getUsername());
+            throw new IllegalArgumentException("Receiver " + receiverAppUser.getUsername() + " is not in your friends list");
+        }
+    }
+
+    public AppUser getAppUserByName(final String username) {
+        return appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new NonexistentEntityException("User with name " + username + " does not exist"));
+    }
+
+    public void saveTransactionAppUsers(final AppUser receiver, final AppUser sender) {
+        appUserRepository.save(sender);
+        appUserRepository.save(receiver);
     }
 
     public AppUser performBankTransfer(final AppUser user, final BankTransferRequest request) {

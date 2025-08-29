@@ -30,7 +30,35 @@ paths:
                 items:
                   $ref: '#/components/schemas/Transfer'
         '401':
-          description: "authentification failed"
+          description: "authentication failed"
+    post:
+      tags:
+        - "Transactions"
+      summary: "Send money to a friend's wallet"
+      operationId: "transferToFriend"
+      security:
+        - cookieAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+      responses:
+        '200':
+          description : "OK!"
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          description: "authentication failed"
+        '400':
+          description: "Invalid input"
+        '409':
+          description: "Insufficient funds"
+        '404':
+          description: "No friend found with this friend name"
 components:
   securitySchemes:
     cookieAuth:

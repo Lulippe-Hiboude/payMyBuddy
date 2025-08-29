@@ -1,7 +1,7 @@
 package com.lulippe.paymybuddy.service;
 
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
-import com.lulippe.paymybuddy.api.exception.InexistantEntityException;
+import com.lulippe.paymybuddy.api.exception.NonexistentEntityException;
 import com.lulippe.paymybuddy.bankTransfer.model.BankTransferRequest;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.enums.Role;
@@ -17,7 +17,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -41,10 +43,10 @@ class UserServiceTest {
         //given
         final String username = "test";
         final String email = "test@test.com";
-        given(appUserRepository.existsByUsernameOrEmail(username,email)).willReturn(false);
+        given(appUserRepository.existsByUsernameOrEmail(username, email)).willReturn(false);
 
         //when & then
-        assertDoesNotThrow(() ->userService.ensureUsernameAndEmailAreUnique(username,email));
+        assertDoesNotThrow(() -> userService.ensureUsernameAndEmailAreUnique(username, email));
     }
 
     @Test
@@ -53,9 +55,9 @@ class UserServiceTest {
         //given
         final String username = "test";
         final String email = "test@test.com";
-        given(appUserRepository.existsByUsernameOrEmail(username,email)).willReturn(true);
+        given(appUserRepository.existsByUsernameOrEmail(username, email)).willReturn(true);
         //when & then
-        assertThrows(EntityAlreadyExistsException.class, () ->userService.ensureUsernameAndEmailAreUnique(username,email));
+        assertThrows(EntityAlreadyExistsException.class, () -> userService.ensureUsernameAndEmailAreUnique(username, email));
     }
 
     @Test
@@ -71,13 +73,13 @@ class UserServiceTest {
         userService.createAppUser(username, email, hashedPassword, role);
 
         //then
-        verify(appUserRepository,(times(1))).save(userArgumentCaptor.capture());
+        verify(appUserRepository, (times(1))).save(userArgumentCaptor.capture());
         final AppUser appUser = userArgumentCaptor.getValue();
-        assertEquals(username,appUser.getUsername());
-        assertEquals(email,appUser.getEmail());
-        assertEquals(hashedPassword,appUser.getPassword());
-        assertEquals(Role.USER,appUser.getRole());
-        assertEquals("ROLE_USER",appUser.getRole().getRoleName());
+        assertEquals(username, appUser.getUsername());
+        assertEquals(email, appUser.getEmail());
+        assertEquals(hashedPassword, appUser.getPassword());
+        assertEquals(Role.USER, appUser.getRole());
+        assertEquals("ROLE_USER", appUser.getRole().getRoleName());
     }
 
     @Test
@@ -97,7 +99,7 @@ class UserServiceTest {
         final AppUser expected = userService.getAppUserByEmail(email);
 
         //then
-        assertEquals(expected,appUser);
+        assertEquals(expected, appUser);
     }
 
     @Test
@@ -108,8 +110,8 @@ class UserServiceTest {
         given(appUserRepository.findByEmail(email)).willReturn(Optional.empty());
 
         //when & then
-        InexistantEntityException exception = assertThrows (InexistantEntityException.class, () ->userService.getAppUserByEmail(email));
-        assertEquals("User with email test@email.com does not exist",exception.getMessage());
+        NonexistentEntityException exception = assertThrows(NonexistentEntityException.class, () -> userService.getAppUserByEmail(email));
+        assertEquals("User with email test@email.com does not exist", exception.getMessage());
     }
 
     @Test
@@ -128,13 +130,13 @@ class UserServiceTest {
         request.setBankHolder("testBankHolder");
 
         //when
-        userService.performBankTransfer(user,request);
+        userService.performBankTransfer(user, request);
 
         //then
-        verify(appUserRepository,(times(1))).save(userArgumentCaptor.capture());
+        verify(appUserRepository, (times(1))).save(userArgumentCaptor.capture());
         final AppUser updateUser = userArgumentCaptor.getValue();
-        assertEquals(email,updateUser.getEmail());
-        assertEquals(new BigDecimal("30.13"),updateUser.getAccount());
+        assertEquals(email, updateUser.getEmail());
+        assertEquals(new BigDecimal("30.13"), updateUser.getAccount());
     }
 
     @Test
@@ -164,12 +166,12 @@ class UserServiceTest {
         given(appUserRepository.findByEmail(friendEmail)).willReturn(Optional.of(friendUser));
 
         //when
-        userService.handleFriendAddition(userEmail,friendEmail);
+        userService.handleFriendAddition(userEmail, friendEmail);
 
         //then
-        verify(appUserRepository,(times(1))).save(userArgumentCaptor.capture());
+        verify(appUserRepository, (times(1))).save(userArgumentCaptor.capture());
         final AppUser updateUser = userArgumentCaptor.getValue();
-        assertEquals(userEmail,updateUser.getEmail());
+        assertEquals(userEmail, updateUser.getEmail());
         assertNotNull(updateUser.getFriends());
         assertTrue(updateUser.getFriends().contains(friendUser));
     }
@@ -192,7 +194,7 @@ class UserServiceTest {
         given(appUserRepository.findByEmail(userEmail)).willReturn(Optional.of(currentUser));
 
         //when
-        assertThrows(IllegalArgumentException.class, () -> userService.handleFriendAddition(userEmail,userEmail));
+        assertThrows(IllegalArgumentException.class, () -> userService.handleFriendAddition(userEmail, userEmail));
     }
 
     @Test
@@ -224,7 +226,7 @@ class UserServiceTest {
         given(appUserRepository.findByEmail(friendEmail)).willReturn(Optional.of(friendUser));
 
         //when
-        assertThrows(EntityAlreadyExistsException.class, () ->userService.handleFriendAddition(userEmail,friendEmail));
+        assertThrows(EntityAlreadyExistsException.class, () -> userService.handleFriendAddition(userEmail, friendEmail));
 
     }
 }
