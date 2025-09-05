@@ -41,7 +41,7 @@ paths:
               schema:
                 type: string
                 example: "A user with this username or email already exists"
-  /users/connections/v0:
+  /users/me/friends/v0:
     post:
       tags:
         - "Users Connections"
@@ -76,6 +76,24 @@ paths:
                 example: "already add as a friend"
         '401' :
           description: "authentication required"
+    get:
+      tags:
+        - "Users Connections"
+      summary: "Get all the friends of the connected user"
+      operationId: "getUserFriendList"
+      security:
+        - cookieAuth: [ ]
+      responses:
+        '200':
+          description: "List of all friend of the connected user"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserFriend'
+        '401':
+          description: "authentication failed"
 components:
   securitySchemes:
     cookieAuth:
@@ -108,4 +126,9 @@ components:
           description: "The role of the user"
           enum: [USER]
           example: "USER"
+    UserFriend:
+      type: object
+      properties:
+        friendName:
+          type: string
 
