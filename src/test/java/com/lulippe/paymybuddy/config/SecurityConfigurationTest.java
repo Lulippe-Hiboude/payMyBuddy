@@ -54,7 +54,7 @@ class SecurityConfigurationTest {
     @Test
     void protectedEndpointShouldReturnUnauthorizedWithoutAuth() throws Exception {
         mockMvc.perform(get("/private"))
-                .andExpect(status().isFound())
-                .andExpect(header().string("Location", Matchers.endsWith("/auth/login")));
+                .andExpect(status().isUnauthorized());
+
     }
 }

@@ -23,7 +23,14 @@ public class TransactionController implements TransactionsApi {
     public ResponseEntity<List<Transfer>> getUserTransactionList() {
         final String email = getAuthenticatedUserEmail();
         log.info("Fetching transactions for user: {}", email);
-        List<Transfer> transactions = transactionService.getUserSentTransactionList(email);
+        final List<Transfer> transactions = transactionService.getUserSentTransactionList(email);
         return ResponseEntity.ok(transactions);
+    }
+
+    @Override
+    public ResponseEntity<String> transferToFriend(final Transfer transfer) {
+        final String email = getAuthenticatedUserEmail();
+        final String response = transactionService.sendMoneyToFriend(transfer, email);
+        return ResponseEntity.ok(response);
     }
 }

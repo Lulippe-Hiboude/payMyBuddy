@@ -1,12 +1,16 @@
 package com.lulippe.paymybuddy.service;
 
+import com.lulippe.paymybuddy.api.exception.InsufficientFundsException;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.entities.Transaction;
+import com.lulippe.paymybuddy.persistence.enums.Role;
 import com.lulippe.paymybuddy.persistence.repository.TransactionRepository;
 import com.lulippe.paymybuddy.transaction.model.Transfer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,9 +18,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceTest {
@@ -28,6 +36,9 @@ class TransactionServiceTest {
 
     @InjectMocks
     private TransactionService transactionService;
+
+    @Captor
+    private ArgumentCaptor<Transaction> transactionCaptor;
 
     @Test
     @DisplayName("should return a list of transfert")
@@ -87,5 +98,96 @@ class TransactionServiceTest {
 
         //then
         assertEquals(0, transfers.size());
+    }
+
+    @Test
+    @DisplayName("should send money to Friend")
+    void shouldSendMoneyToFriend() {
+        //given
+        final String userEmail = "test@email.com";
+        final String friendEmail = "friend@email.com";
+        final String userPassword = "hashedPassword";
+        final String friendName = "friendName";
+        final String descriptionTest = "test";
+        final String amount = "5.00";
+        final Transfer transfer = new Transfer();
+        transfer.setFriendName(friendName);
+        transfer.setAmount(amount);
+        transfer.setDescription(descriptionTest);
+
+        final Set<AppUser> friendFriends = new HashSet<>();
+        final AppUser friendUser = AppUser.builder()
+                .username(friendName)
+                .email(friendEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(friendFriends)
+                .build();
+        final Set<AppUser> userFriends = new HashSet<>();
+        userFriends.add(friendUser);
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .build();
+        given(userService.getAppUserByEmail(userEmail)).willReturn(currentUser);
+        given(userService.getAppUserByName(friendName)).willReturn(friendUser);
+        doNothing().when(userService).checkIfReceiverIsAFriend(friendUser,currentUser);
+        doNothing().when(userService).saveTransactionAppUsers(currentUser,friendUser);
+
+        //when
+        transactionService.sendMoneyToFriend(transfer,userEmail);
+
+        //then
+        verify(transactionRepository,times(1)).save(transactionCaptor.capture());
+        final Transaction transaction = transactionCaptor.getValue();
+        assertEquals(descriptionTest, transaction.getDescription());
+        assertEquals(new BigDecimal(amount), transaction.getAmount());
+        assertEquals(transaction.getReceiver(), friendUser);
+        assertEquals(transaction.getSender(), currentUser);
+    }
+
+    @Test
+    @DisplayName("should throw InsufficientFundsException")
+    void shouldThrowInsufficientFundsException() {
+        //given
+        final String userEmail = "test@email.com";
+        final String friendEmail = "friend@email.com";
+        final String userPassword = "hashedPassword";
+        final String friendName = "friendName";
+        final String descriptionTest = "test";
+        final String amount = "15.00";
+        final Transfer transfer = new Transfer();
+        transfer.setFriendName(friendName);
+        transfer.setAmount(amount);
+        transfer.setDescription(descriptionTest);
+
+        final Set<AppUser> friendFriends = new HashSet<>();
+        final AppUser friendUser = AppUser.builder()
+                .username(friendName)
+                .email(friendEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(friendFriends)
+                .build();
+        final Set<AppUser> userFriends = new HashSet<>();
+        userFriends.add(friendUser);
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .build();
+        given(userService.getAppUserByEmail(userEmail)).willReturn(currentUser);
+        given(userService.getAppUserByName(friendName)).willReturn(friendUser);
+        doNothing().when(userService).checkIfReceiverIsAFriend(friendUser,currentUser);
+
+        //when & then
+        assertThrows(InsufficientFundsException.class, () -> transactionService.sendMoneyToFriend(transfer,userEmail));
     }
 }
