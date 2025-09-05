@@ -36,6 +36,7 @@ paths:
         - "Transactions"
       summary: "Send money to a friend's wallet"
       operationId: "transferToFriend"
+      deprecated: true
       security:
         - cookieAuth: [ ]
       requestBody:
@@ -47,6 +48,35 @@ paths:
       responses:
         '200':
           description : "OK!"
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          description: "authentication failed"
+        '400':
+          description: "Invalid input"
+        '409':
+          description: "Insufficient funds"
+        '404':
+          description: "No friend found with this friend name"
+  /transactions/v1/me:
+    post:
+      tags:
+        - "Transactions"
+      summary: "Send money to a friend's wallet"
+      operationId: "transferToFriendV1"
+      security:
+        - cookieAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+      responses:
+        '200':
+          description: "OK!"
           content:
             application/json:
               schema:

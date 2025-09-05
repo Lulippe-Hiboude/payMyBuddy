@@ -28,9 +28,17 @@ public class TransactionController implements TransactionsApi {
     }
 
     @Override
+    @Deprecated
     public ResponseEntity<String> transferToFriend(final Transfer transfer) {
         final String email = getAuthenticatedUserEmail();
         final String response = transactionService.sendMoneyToFriend(transfer, email);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<String> transferToFriendV1(Transfer transfer) {
+        final String email = getAuthenticatedUserEmail();
+        final String response = transactionService.sendMoneyToFriendV1(transfer, email);
         return ResponseEntity.ok(response);
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -125,8 +126,8 @@ class TransactionControllerTest {
     }
     @Test
     @WithMockUser(username = "test@test.com", roles = "USER")
-    @DisplayName("should return Bad Request")
-    void shouldReturnBadRequest() throws Exception {
+    @DisplayName("should return Bad Request when friend not in friend list")
+    void shouldReturnBadRequestWhenFriendNotInFriendList() throws Exception {
         //given
         final String email = "test@test.com";
         final String friendName= "friend";
@@ -139,6 +140,76 @@ class TransactionControllerTest {
         doThrow(new IllegalArgumentException("Receiver is not in your friends list")).when(transactionService).sendMoneyToFriend(transfer,email);
         //when & then
         mockMvc.perform(post("/transactions/v0/me")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transfer))
+        ).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "test@test.com", roles = "USER")
+    @DisplayName("should transfer money to friend V1")
+    void shouldTransferMoneyToFriendV1() throws Exception {
+        //given
+        final String email = "test@test.com";
+        final String friendName= "friend";
+        final String amount = "5.00";
+        final String description = "description";
+        final Transfer transfer = new Transfer();
+        transfer.setFriendName(friendName);
+        transfer.setAmount(amount);
+        transfer.setDescription(description);
+        final BigDecimal commission = BigDecimal.valueOf(0.02);
+        final String response = "Transfer of " + amount + " € from " + email + " to " + friendName + " completed successfully. A commission of " + commission + " € has been deducted from your account";
+        given(transactionService.sendMoneyToFriendV1(transfer,email)).willReturn(response);
+
+        //when & then
+        mockMvc.perform(post("/transactions/v1/me")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transfer))
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "test@test.com", roles = "USER")
+    @DisplayName("should return Conflict if fund is not sufficient V1")
+    void shouldReturnConflictIfFundIsNotSufficientV1() throws Exception {
+        //given
+        final String email = "test@test.com";
+        final String friendName= "friend";
+        final String amount = "10.00";
+        final String description = "description";
+        final Transfer transfer = new Transfer();
+        transfer.setFriendName(friendName);
+        transfer.setAmount(amount);
+        transfer.setDescription(description);
+        doThrow(new InsufficientFundsException("insufficient funds")).when(transactionService).sendMoneyToFriendV1(transfer,email);
+
+        //when & then
+        mockMvc.perform(post("/transactions/v1/me")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transfer))
+        ).andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "test@test.com", roles = "USER")
+    @DisplayName("should return Bad Request when friend not in friend list V1")
+    void shouldReturnBadRequestWhenFriendNotInFriendListV1() throws Exception {
+        //given
+        final String email = "test@test.com";
+        final String friendName= "friend";
+        final String amount = "10.00";
+        final String description = "description";
+        final Transfer transfer = new Transfer();
+        transfer.setFriendName(friendName);
+        transfer.setAmount(amount);
+        transfer.setDescription(description);
+        doThrow(new IllegalArgumentException("Receiver is not in your friends list")).when(transactionService).sendMoneyToFriendV1(transfer,email);
+        //when & then
+        mockMvc.perform(post("/transactions/v1/me")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(transfer))

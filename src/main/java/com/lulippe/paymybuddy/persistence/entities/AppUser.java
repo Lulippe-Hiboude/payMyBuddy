@@ -41,6 +41,9 @@ public class AppUser {
     @Builder.Default
     private BigDecimal account = BigDecimal.ZERO;
 
+    @Column(name = "system_account",nullable = false)
+    private boolean systemAccount;
+
     @ManyToMany
     @JoinTable(
             name = "user_friend",
