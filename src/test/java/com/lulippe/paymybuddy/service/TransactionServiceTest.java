@@ -190,4 +190,97 @@ class TransactionServiceTest {
         //when & then
         assertThrows(InsufficientFundsException.class, () -> transactionService.sendMoneyToFriend(transfer,userEmail));
     }
+
+    @Test
+    @DisplayName("should send money to friend V1")
+    void shouldSendMoneyToFriendV1() {
+        //given
+        final String userEmail = "test@email.com";
+        final String friendEmail = "friend@email.com";
+        final String userPassword = "hashedPassword";
+        final String friendName = "friendName";
+        final String descriptionTest = "test";
+        final String amount = "5.00";
+        final BigDecimal commission = BigDecimal.valueOf(0.02);
+        final Transfer transfer = new Transfer();
+        transfer.setFriendName(friendName);
+        transfer.setAmount(amount);
+        transfer.setDescription(descriptionTest);
+
+        final Set<AppUser> friendFriends = new HashSet<>();
+        final AppUser friendUser = AppUser.builder()
+                .username(friendName)
+                .email(friendEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(friendFriends)
+                .build();
+        final Set<AppUser> userFriends = new HashSet<>();
+        userFriends.add(friendUser);
+        final AppUser currentUser = AppUser.builder()
+                .username("currentUser")
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .build();
+        given(userService.getAppUserByEmail(userEmail)).willReturn(currentUser);
+        given(userService.getAppUserByName(friendName)).willReturn(friendUser);
+        doNothing().when(userService).checkIfReceiverIsAFriend(friendUser,currentUser);
+        doNothing().when(userService).handleSystemAccount(any());
+
+        final String expected = "Transfer of " + amount + " € from " + currentUser.getUsername() + " to " + friendUser.getUsername() + " completed successfully. A commission of " + commission + " € has been deducted from your account";
+        //when
+        final String result = transactionService.sendMoneyToFriendV1(transfer,userEmail);
+        verify(transactionRepository,times(1)).save(transactionCaptor.capture());
+        final Transaction transaction = transactionCaptor.getValue();
+        assertEquals(descriptionTest, transaction.getDescription());
+        assertEquals(new BigDecimal(amount), transaction.getAmount());
+        assertEquals(transaction.getReceiver(), friendUser);
+        assertEquals(transaction.getSender(), currentUser);
+        assertEquals(result,expected);
+    }
+
+    @Test
+    @DisplayName("should throw InsufficientFundsException V2")
+    void shouldThrowInsufficientFundsExceptionV2() {
+        //given
+        final String userEmail = "test@email.com";
+        final String friendEmail = "friend@email.com";
+        final String userPassword = "hashedPassword";
+        final String friendName = "friendName";
+        final String descriptionTest = "test";
+        final String amount = "10.00";
+        final Transfer transfer = new Transfer();
+        transfer.setFriendName(friendName);
+        transfer.setAmount(amount);
+        transfer.setDescription(descriptionTest);
+
+        final Set<AppUser> friendFriends = new HashSet<>();
+        final AppUser friendUser = AppUser.builder()
+                .username(friendName)
+                .email(friendEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(friendFriends)
+                .build();
+        final Set<AppUser> userFriends = new HashSet<>();
+        userFriends.add(friendUser);
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .build();
+        given(userService.getAppUserByEmail(userEmail)).willReturn(currentUser);
+        given(userService.getAppUserByName(friendName)).willReturn(friendUser);
+        doNothing().when(userService).checkIfReceiverIsAFriend(friendUser,currentUser);
+
+        //when & then
+        assertThrows(InsufficientFundsException.class, () -> transactionService.sendMoneyToFriendV1(transfer,userEmail));
+    }
 }

@@ -231,6 +231,35 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("should throw an IllegalArgumentException if user tries to add System as a friend")
+    void shouldThrowIllegalArgumentExceptionIfUserTriesToAddSystemAsAFriend() {
+        //given
+        final String userEmail = "test@email.com";
+        final String friendEmail = "platform@paymybuddy.com";
+        final String userPassword = "hashedPassword";
+        final Set<AppUser> userFriends = new HashSet<>();
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .systemAccount(false)
+                .build();
+
+        final AppUser friendUser = AppUser.builder()
+                .email(friendEmail)
+                .role(Role.ROLE_SYSTEM)
+                .systemAccount(true)
+                .build();
+        given(appUserRepository.findByEmail(userEmail)).willReturn(Optional.of(currentUser));
+        given(appUserRepository.findByEmail(friendEmail)).willReturn(Optional.of(friendUser));
+
+        //when
+        assertThrows(IllegalArgumentException.class, () -> userService.handleFriendAddition(userEmail,friendEmail));
+    }
+
+    @Test
     @DisplayName("should do nothing if receiver is a friend with sender")
     void shouldDoNothingIfReceiverIsFriendWithSender() {
         //given
@@ -356,5 +385,41 @@ class UserServiceTest {
         //then
         verify(appUserRepository, times(1)).save(currentUser);
         verify(appUserRepository, times(1)).save(friendUser);
+    }
+
+    @Test
+    @DisplayName("Should add commission to account system")
+    void shouldAddCommissionToAccountSystem() {
+        // given
+        final BigDecimal commission = BigDecimal.TEN;
+        final String systemEmail = "platform@paymybuddy.com";
+        final BigDecimal systemAccount = BigDecimal.valueOf(200.00);
+        final AppUser system = AppUser.builder()
+                .email(systemEmail)
+                .role(Role.ROLE_SYSTEM)
+                .systemAccount(true)
+                .account(systemAccount)
+                .build();
+        final BigDecimal expectedAccountSystem = systemAccount.add(commission);
+        given(appUserRepository.findBySystemAccountTrue()).willReturn(Optional.of(system));
+
+        //when
+        userService.handleSystemAccount(commission);
+
+        //then
+        verify(appUserRepository, times(1)).save(userArgumentCaptor.capture());
+        final AppUser expectedSystem = userArgumentCaptor.getValue();
+        assertEquals(expectedSystem.getAccount(), expectedAccountSystem );
+    }
+
+    @Test
+    @DisplayName("should throw an NonexistentEntityException if no system found")
+    void shouldThrowAnNonExistentEntityExceptionIfNoSystemFound() {
+        //given
+        final String systemEmail = "platform@paymybuddy.com";
+        final BigDecimal commission = BigDecimal.TEN;
+        given(appUserRepository.findBySystemAccountTrue()).willReturn(Optional.empty());
+
+        assertThrows(NonexistentEntityException.class, () -> userService.handleSystemAccount(commission));
     }
 }

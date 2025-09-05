@@ -61,6 +61,11 @@ public class UserService {
         appUserRepository.save(receiver);
     }
 
+    private void saveTransactionSystem(final AppUser system) {
+        log.info("Saving transaction history of the system");
+        appUserRepository.save(system);
+    }
+
     public AppUser performBankTransfer(final AppUser user, final BankTransferRequest request) {
         final BigDecimal actualAccountBalance = user.getAccount();
         final BigDecimal amountToAdd = BigDecimal.valueOf(request.getAmount());
@@ -72,13 +77,23 @@ public class UserService {
     public void handleFriendAddition(final String userEmail, final String friendEmail) {
         final AppUser currentAppUser = getAppUserByEmail(userEmail);
         final AppUser friendAppUser = getAppUserByEmail(friendEmail);
-        ensureFriendValidity(currentAppUser,friendAppUser);
+        ensureFriendValidity(currentAppUser, friendAppUser);
         processAddFriendRequest(currentAppUser, friendAppUser);
+    }
+
+    private AppUser getSystemUser() {
+        return appUserRepository.findBySystemAccountTrue()
+                .orElseThrow(() -> new NonexistentEntityException("System not found"));
     }
 
     private void ensureFriendValidity(final AppUser currentAppUser, final AppUser friendAppUser) {
         if (friendAppUser.equals(currentAppUser)) {
             throw new IllegalArgumentException("You cannot add yourself as a friend! that is sad :(");
+        }
+
+        if (friendAppUser.isSystemAccount()) {
+            log.error("User {} attempted to add the system account as a friend", currentAppUser.getUsername());
+            throw new IllegalArgumentException("Invalid friend selection");
         }
 
         ensureFriendNotAlreadyAdded(currentAppUser, friendAppUser);
@@ -90,8 +105,14 @@ public class UserService {
     }
 
     private void ensureFriendNotAlreadyAdded(final AppUser currentAppUser, final AppUser friendAppUser) {
-        if(currentAppUser.getFriends().contains(friendAppUser)) {
+        if (currentAppUser.getFriends().contains(friendAppUser)) {
             throw new EntityAlreadyExistsException("Friend already added in current user friend list : " + friendAppUser.getEmail());
         }
+    }
+
+    public void handleSystemAccount(final BigDecimal commission) {
+        final AppUser system = getSystemUser();
+        system.setAccount(system.getAccount().add(commission));
+        saveTransactionSystem(system);
     }
 }
