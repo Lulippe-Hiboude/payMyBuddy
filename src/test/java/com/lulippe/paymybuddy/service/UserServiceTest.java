@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -227,6 +228,133 @@ class UserServiceTest {
 
         //when
         assertThrows(EntityAlreadyExistsException.class, () -> userService.handleFriendAddition(userEmail, friendEmail));
+    }
 
+    @Test
+    @DisplayName("should do nothing if receiver is a friend with sender")
+    void shouldDoNothingIfReceiverIsFriendWithSender() {
+        //given
+        final String userEmail = "test@email.com";
+        final String friendEmail = "friend@email.com";
+        final String userPassword = "hashedPassword";
+        final Set<AppUser> friendFriends = new HashSet<>();
+        final AppUser friendUser = AppUser.builder()
+                .email(friendEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(friendFriends)
+                .build();
+        final Set<AppUser> userFriends = new HashSet<>();
+        userFriends.add(friendUser);
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .build();
+
+        //when & then
+        assertDoesNotThrow(() -> userService.checkIfReceiverIsAFriend(friendUser, currentUser));
+    }
+
+    @Test
+    @DisplayName("should throw illegalArgumentException if receiver is not a friend of sender")
+    void shouldThrowIllegalArgumentExceptionIfReceiverIsNotAFriendOfSender() {
+        //given
+        final String userEmail = "test@email.com";
+        final String friendEmail = "friend@email.com";
+        final String userPassword = "hashedPassword";
+        final Set<AppUser> friendFriends = new HashSet<>();
+        final AppUser sender = AppUser.builder()
+                .email(friendEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(friendFriends)
+                .build();
+        final Set<AppUser> userFriends = new HashSet<>();
+        userFriends.add(sender);
+        final AppUser receiver = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .build();
+
+        //when & then
+        assertThrows(IllegalArgumentException.class, () -> userService.checkIfReceiverIsAFriend(receiver, sender));
+    }
+
+    @Test
+    @DisplayName("should get user by username")
+    void shouldGetUserByUsername() {
+        //given
+        final String userEmail = "test@email.com";
+        final String userPassword = "hashedPassword";
+        final String username = "username";
+        final AppUser currentUser = AppUser.builder()
+                .username(username)
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(Collections.emptySet())
+                .build();
+        given(appUserRepository.findByUsername(username)).willReturn(Optional.of(currentUser));
+
+        //when
+        final AppUser expected = userService.getAppUserByName(username);
+
+        //then
+        assertEquals(expected, currentUser);
+    }
+
+    @Test
+    @DisplayName("should throw an exception if no user found")
+    void shouldThrowAnExceptionIfNoUserFound() {
+        //given
+
+        final String username = "username";
+
+        given(appUserRepository.findByUsername(username)).willReturn(Optional.empty());
+
+        //when
+        assertThrows(NonexistentEntityException.class, () -> userService.getAppUserByName(username));
+    }
+
+    @Test
+    @DisplayName("should save sender and receiver")
+    void shouldSaveSenderAndReceiver() {
+        //given
+        final String userEmail = "test@email.com";
+        final String friendEmail = "friend@email.com";
+        final String userPassword = "hashedPassword";
+        final Set<AppUser> friendFriends = new HashSet<>();
+        final AppUser friendUser = AppUser.builder()
+                .email(friendEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(friendFriends)
+                .build();
+        final Set<AppUser> userFriends = new HashSet<>();
+        userFriends.add(friendUser);
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .build();
+
+        //when
+        userService.saveTransactionAppUsers(friendUser, currentUser);
+
+        //then
+        verify(appUserRepository, times(1)).save(currentUser);
+        verify(appUserRepository, times(1)).save(friendUser);
     }
 }

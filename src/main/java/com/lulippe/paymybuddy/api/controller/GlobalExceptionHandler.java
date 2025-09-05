@@ -1,6 +1,7 @@
 package com.lulippe.paymybuddy.api.controller;
 
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
+import com.lulippe.paymybuddy.api.exception.InsufficientFundsException;
 import com.lulippe.paymybuddy.api.exception.NonexistentEntityException;
 import com.lulippe.paymybuddy.api.exception.InvalidDataException;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -16,8 +17,8 @@ import static com.lulippe.paymybuddy.utils.LogUtil.logRequestFailed;
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(EntityAlreadyExistsException.class)
-    public ResponseEntity<String> handleEntityAlreadyExistsException(final EntityAlreadyExistsException e) {
+    @ExceptionHandler({EntityAlreadyExistsException.class, InsufficientFundsException.class})
+    public ResponseEntity<String> handleEntityAlreadyExistsException(final Exception e) {
         logRequestFailed(e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }

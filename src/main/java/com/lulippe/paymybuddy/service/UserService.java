@@ -56,6 +56,7 @@ public class UserService {
     }
 
     public void saveTransactionAppUsers(final AppUser receiver, final AppUser sender) {
+        log.info("Saving users with updated transaction history");
         appUserRepository.save(sender);
         appUserRepository.save(receiver);
     }

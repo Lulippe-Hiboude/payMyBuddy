@@ -29,8 +29,7 @@ public class TransactionController implements TransactionsApi {
 
     @Override
     public ResponseEntity<String> transferToFriend(final Transfer transfer) {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final String email = authentication.getName();
+        final String email = getAuthenticatedUserEmail();
         final String response = transactionService.sendMoneyToFriend(transfer, email);
         return ResponseEntity.ok(response);
     }
