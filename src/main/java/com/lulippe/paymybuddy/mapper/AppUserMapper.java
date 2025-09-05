@@ -4,8 +4,14 @@ import com.lulippe.paymybuddy.bankTransfer.model.BankTransferResponse;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.enums.Role;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
+import com.lulippe.paymybuddy.user.model.UserFriend;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface AppUserMapper {
@@ -30,4 +36,16 @@ public interface AppUserMapper {
         }
         return Role.valueOf(roleEnum.name());
     }
+
+
+    default  List<UserFriend> toUserFriendList(final Set<AppUser> friends){
+        return friends.stream()
+                .map(friend -> toUserFriend(friend.getUsername()))
+                .sorted(Comparator.comparing(UserFriend::getFriendName))
+                .collect(Collectors.toList());
+    }
+
+    @Mapping(target = "friendName", source = "username")
+    UserFriend toUserFriend(final String username);
+
 }

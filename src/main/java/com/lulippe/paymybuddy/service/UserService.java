@@ -7,6 +7,7 @@ import com.lulippe.paymybuddy.mapper.AppUserMapper;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.repository.AppUserRepository;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
+import com.lulippe.paymybuddy.user.model.UserFriend;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -114,5 +116,10 @@ public class UserService {
         final AppUser system = getSystemUser();
         system.setAccount(system.getAccount().add(commission));
         saveTransactionSystem(system);
+    }
+
+    public List<UserFriend> getAllUserFriend(final String userEmail) {
+        final AppUser currentUser = getAppUserByEmail(userEmail);
+        return  AppUserMapper.INSTANCE.toUserFriendList(currentUser.getFriends());
     }
 }

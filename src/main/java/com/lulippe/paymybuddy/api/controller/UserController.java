@@ -1,11 +1,15 @@
 package com.lulippe.paymybuddy.api.controller;
 
+import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.service.UserService;
 import com.lulippe.paymybuddy.user.api.UsersConnectionsApi;
+import com.lulippe.paymybuddy.user.model.UserFriend;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 import static com.lulippe.paymybuddy.utils.AuthenticationUtil.getAuthenticatedUserEmail;
 
@@ -20,5 +24,13 @@ public class UserController implements UsersConnectionsApi {
         final String userEmail = getAuthenticatedUserEmail();
         userService.handleFriendAddition(userEmail, friendEmail);
         return ResponseEntity.ok("User added");
+    }
+
+    @Override
+    public ResponseEntity<List<UserFriend>> getUserFriendList() {
+        final String userEmail = getAuthenticatedUserEmail();
+        log.info("Getting user friend list");
+        final List<UserFriend> userFriendList = userService.getAllUserFriend(userEmail);
+        return ResponseEntity.ok(userFriendList);
     }
 }

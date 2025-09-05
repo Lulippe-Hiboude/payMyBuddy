@@ -7,6 +7,7 @@ import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.enums.Role;
 import com.lulippe.paymybuddy.persistence.repository.AppUserRepository;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
+import com.lulippe.paymybuddy.user.model.UserFriend;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,10 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -416,10 +414,71 @@ class UserServiceTest {
     @DisplayName("should throw an NonexistentEntityException if no system found")
     void shouldThrowAnNonExistentEntityExceptionIfNoSystemFound() {
         //given
-        final String systemEmail = "platform@paymybuddy.com";
         final BigDecimal commission = BigDecimal.TEN;
         given(appUserRepository.findBySystemAccountTrue()).willReturn(Optional.empty());
 
         assertThrows(NonexistentEntityException.class, () -> userService.handleSystemAccount(commission));
     }
+
+    @Test
+    @DisplayName("should return a list of UserFriend sorted alphabetically")
+    void shouldReturnAListOfUserFriendSortedAlphabetically() {
+        //given
+        final String userEmail = "test@email.com";
+        final String userPassword = "hashedPassword";
+        final String friendName1 = "Albert";
+        final String friendName2 = "Bernard";
+        final AppUser friendUser1 = AppUser.builder()
+                .username(friendName1)
+                .email("friend1@email.com")
+                .role(Role.USER)
+                .build();
+        final AppUser friendUser2 = AppUser.builder()
+                .username(friendName2)
+                .email("friend2@email.com")
+                .role(Role.USER)
+                .build();
+
+        final Set<AppUser> userFriends = Set.of(friendUser1, friendUser2);
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .friends(userFriends)
+                .build();
+        final UserFriend userFriend1 = new UserFriend();
+        userFriend1.setFriendName(friendName1);
+
+        final UserFriend userFriend2 = new UserFriend();
+        userFriend2.setFriendName(friendName2);
+
+        final List<UserFriend> expected = List.of(userFriend1, userFriend2);
+        given(appUserRepository.findByEmail(userEmail)).willReturn(Optional.of(currentUser));
+        //when
+        final List<UserFriend> result = userService.getAllUserFriend(userEmail);
+        //then
+        assertEquals(expected, result);
+    }
+
+    @Test
+    @DisplayName("should return an empty list if no friend")
+    void shouldReturnAnEmptyListIfNoFriend() {
+        //given
+        final String userEmail = "test@email.com";
+        final String userPassword = "hashedPassword";
+        final Set<AppUser> userFriends = Collections.emptySet();
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .friends(userFriends)
+                .build();
+        given(appUserRepository.findByEmail(userEmail)).willReturn(Optional.of(currentUser));
+        //when
+        final List<UserFriend> result = userService.getAllUserFriend(userEmail);
+
+        //then
+        assertEquals(0, result.size());
+    }
+
 }
