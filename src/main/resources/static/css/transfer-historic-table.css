@@ -1,0 +1,39 @@
+.transactions-section {
+    border: 1px solid #ccc;
+    padding: 16px;
+    margin-top: 40px;
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.transactions-section h2 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#transactionsTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#transactionsTable th,
+#transactionsTable td {
+    padding: 8px;
+    text-align: left;
+}
+
+#transactionsTable th {
+    font-weight: bold;
+    font-size: 16px;
+    border-bottom: 1px solid #ccc;
+}
+
+#transactionsTable tbody tr {
+    border-bottom: 1px solid #ccc;
+}
+
+#transactionsTable tbody tr:last-child {
+    border-bottom: none;
+}
