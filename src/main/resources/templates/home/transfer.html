@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+
+<head th:replace="fragment/header :: commonHeader('Home-Tranfer - Pay My Buddy')">
+    <link rel="stylesheet" href="/css/transfer.css">
+    <title>Transfer</title>
+</head>
+
+<body>
+    <div th:replace="fragment/header-connected :: connectedHeader"></div>
+
+    <div class="transfer-form">
+        <div class = "transfer-item">
+            <select id="friendSelect">
+                <option value="" disabled selected>Sélectionner une relation</option>
+            </select>
+        </div>
+
+        <div class = "transfer-item">
+            <label for="descriptionInput" class="sr-only"></label>
+            <input type="text"
+               id="descriptionInput"
+               placeholder="Description"
+               maxlength="30"
+               class="description-input"
+            >
+        </div>
+
+        <div class="transfer-item amount-item">
+            <label for="amountInput" class="sr-only"></label>
+            <input  type ="number"
+                    id="amountInput"
+                    placeholder="0€"
+                    min="0"
+                    step="1"
+                    class="amount-input"
+            >
+        </div>
+
+        <div class="transfer-item">
+            <button class="submit-button" onclick="submitTransfer()">Payer</button>
+            <div id="transferMessage" class="transfer-message"></div>
+        </div>
+    </div>
+
+    <div class="transactions-section">
+        <h2>Mes Transactions</h2>
+        <table id="transactionsTable">
+            <thead>
+            <tr>
+                <th>Relations</th>
+                <th>Description</th>
+                <th>Montant</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>
+
+<script>
+    async function loadFriends() {
+        try {
+            const response = await fetch('/users/me/friends/v0', {
+                method: 'GET',
+                credentials: 'include' // pour envoyer le cookie JSESSIONID
+            });
+
+            if (response.ok) {
+                const friends = await response.json();
+                const friendSelect = document.getElementById('friendSelect');
+
+                friends.forEach(friend => {
+                    const option = document.createElement('option');
+                    option.value = friend.friendName;
+                    option.textContent = friend.friendName;
+                    friendSelect.appendChild(option);
+                });
+            } else {
+                console.error('Erreur récupération amis', await response.text());
+            }
+        } catch (err) {
+            console.error('Erreur réseau', err);
+        }
+    }
+
+    async function submitTransfer(){
+        const friendName = document.getElementById('friendSelect').value;
+        const description = document.getElementById('descriptionInput').value;
+        const amount = document.getElementById('amountInput').value;
+
+        const transfer = {friendName,description,amount};
+
+        const messageContainer = document.getElementById('transferMessage');
+        messageContainer.textContent="";
+        messageContainer.classList.remove('success','error');
+        try {
+            const response = await fetch('/transactions/v1/me', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(transfer)
+            });
+            const textResponse = await response.text();
+
+            if (response.ok) {
+                messageContainer.classList.add('success');
+                messageContainer.textContent=textResponse;
+
+                await loadTransactions()
+            }else {
+                messageContainer.classList.add('error');
+                messageContainer.textContent="Erreur: " +textResponse;
+            }
+        } catch (err) {
+                console.error("Erreur réseau:", err);
+                messageContainer.classList.add('error');
+                messageContainer.textContent = "Erreur réseau, réessayez.";
+            }
+    }
+
+    async function loadTransactions() {
+        try {
+            const response = await fetch('/transactions/v0/me', {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const transactions = await response.json();
+                const tbody = document.querySelector('#transactionsTable tbody');
+                tbody.innerHTML = ''; // vider le tableau avant de remplir
+
+                transactions.forEach(tx => {
+                    const tr = document.createElement('tr');
+
+                    const tdFriend = document.createElement('td');
+                    tdFriend.textContent = tx.friendName;
+                    tr.appendChild(tdFriend);
+
+                    const tdDesc = document.createElement('td');
+                    tdDesc.textContent = tx.description;
+                    tr.appendChild(tdDesc);
+
+                    const tdAmount = document.createElement('td');
+                    tdAmount.textContent = tx.amount + '€';
+                    tr.appendChild(tdAmount);
+
+                    tbody.appendChild(tr);
+                });
+            } else {
+                console.error('Erreur récupération transactions', await response.text());
+            }
+        } catch (err) {
+            console.error('Erreur réseau', err);
+        }
+    }
+    document.addEventListener('DOMContentLoaded', loadTransactions);
+    document.addEventListener('DOMContentLoaded', loadFriends);
+</script>

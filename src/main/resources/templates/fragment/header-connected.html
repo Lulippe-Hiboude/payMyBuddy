@@ -1,0 +1,30 @@
+<header th:fragment="connectedHeader" class="header-connected">
+    <div class="header-left">
+        <span class="logo">Pay My Buddy</span>
+    </div>
+    <nav class="header-right">
+        <a href="/home/transfer"
+           class="nav-item"
+           th:classappend="${currentPath== '/home/transfer'} ? ' active'">
+            Transférer
+        </a>
+
+        <a href="/home/profile"
+           class="nav-item"
+           th:classappend="${currentPath== '/home/profile'} ? ' active'">
+            Profil
+        </a>
+
+        <a href="/home/friends/add"
+           class="nav-item"
+           th:classappend="${currentPath== '/home/friends/add'} ? ' active'">
+            Ajouter Relation
+        </a>
+
+        <a href="/home/auth/logout"
+           class="nav-item"
+           th:classappend="${currentPath== '/home/auth/logout'} ? ' active'">
+            Se déconnecter
+        </a>
+    </nav>
+</header>

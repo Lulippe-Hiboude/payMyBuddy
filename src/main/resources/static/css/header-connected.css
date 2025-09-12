@@ -1,0 +1,41 @@
+.header-connected {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    color: black;
+    border-radius: 8px;
+    font-weight: bold;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.header-left .logo {
+    font-size: 20px;
+    font-weight: normal;
+}
+
+.header-right {
+    display: flex;
+    gap: 20px;
+}
+
+.header-right .nav-item {
+    color: black;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.header-right .nav-item.active{
+    color: #004494;
+    font-weight: bold;
+}
+
+.header-right .nav-item:hover {
+    text-decoration: underline;
+}

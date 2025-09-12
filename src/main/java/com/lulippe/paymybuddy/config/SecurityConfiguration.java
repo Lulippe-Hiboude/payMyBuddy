@@ -47,7 +47,7 @@ public class SecurityConfiguration {
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/home", true)
+                        .defaultSuccessUrl("/home/transfer", true)
                         .failureUrl("/auth/login?error")
                 )
                 .userDetailsService(userDetailsService)
