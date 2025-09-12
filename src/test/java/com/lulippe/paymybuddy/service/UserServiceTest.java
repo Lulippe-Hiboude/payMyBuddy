@@ -7,6 +7,7 @@ import com.lulippe.paymybuddy.bankTransfer.model.BankTransferRequest;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.enums.Role;
 import com.lulippe.paymybuddy.persistence.repository.AppUserRepository;
+import com.lulippe.paymybuddy.user.model.InformationsToUpdate;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
 import com.lulippe.paymybuddy.user.model.UserFriend;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +18,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -31,6 +33,9 @@ import static org.mockito.Mockito.verify;
 class UserServiceTest {
     @Mock
     private AppUserRepository appUserRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService userService;
@@ -525,6 +530,245 @@ class UserServiceTest {
         //when & then
         assertThrows(InsufficientFundsException.class, () -> userService.withdrawToBank(currentUser, amountToWithdraw));
         verify(appUserRepository, times(0)).save(any());
+    }
+
+    @Test
+    @DisplayName("should update user information")
+    void shouldUpdateUserInformation() {
+        //given
+        final String oldUserEmail = "oldEmail@email.com";
+        final String newUserEmail = "newEmail@email.com";
+        final String oldPassword = "oldHashedPassword";
+        final String newPassword = "newHashedPassword";
+        final String oldUsername = "oldUsername";
+        final String newUsername = "newUsername";
+
+        final InformationsToUpdate informationsToUpdate = new InformationsToUpdate();
+        informationsToUpdate.setEmail(newUserEmail);
+        informationsToUpdate.setPassword(newPassword);
+        informationsToUpdate.setUsername(newUsername);
+
+        final AppUser currentUser = AppUser.builder()
+                .email(oldUserEmail)
+                .username(oldUsername)
+                .role(Role.USER)
+                .password(oldPassword)
+                .account(BigDecimal.TEN)
+                .friends(Collections.emptySet())
+                .build();
+        given(appUserRepository.findByEmail(oldUserEmail)).willReturn(Optional.of(currentUser));
+        given(passwordEncoder.encode(newPassword)).willReturn(newPassword);
+
+        //when
+        userService.updateUserProfil(oldUserEmail,informationsToUpdate);
+        verify(appUserRepository, times(1)).save(userArgumentCaptor.capture());
+        final AppUser expectedUser = userArgumentCaptor.getValue();
+        assertEquals(newUsername, expectedUser.getUsername());
+        assertEquals(newPassword, expectedUser.getPassword());
+        assertEquals(newUserEmail, expectedUser.getEmail());
+        assertEquals(currentUser.getAccount(), expectedUser.getAccount());
+        assertEquals(currentUser.getFriends(), expectedUser.getFriends());
+    }
+
+    @Test
+    @DisplayName("should throw IllegalArgumentException if email is empty")
+    void shouldThrowIllegalArgumentExceptionIfEmailIsEmpty() {
+        //given
+        final String oldUserEmail = "oldEmail@email.com";
+        final String newUserEmail = "  ";
+        final String oldPassword = "oldHashedPassword";
+        final String newPassword = "newHashedPassword";
+        final String oldUsername = "oldUsername";
+        final String newUsername = "newUsername";
+
+        final InformationsToUpdate informationsToUpdate = new InformationsToUpdate();
+        informationsToUpdate.setEmail(newUserEmail);
+        informationsToUpdate.setPassword(newPassword);
+        informationsToUpdate.setUsername(newUsername);
+
+        final AppUser currentUser = AppUser.builder()
+                .email(oldUserEmail)
+                .username(oldUsername)
+                .role(Role.USER)
+                .password(oldPassword)
+                .account(BigDecimal.TEN)
+                .friends(Collections.emptySet())
+                .build();
+        given(appUserRepository.findByEmail(oldUserEmail)).willReturn(Optional.of(currentUser));
+
+        //when & then
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUserProfil(oldUserEmail,informationsToUpdate));
+    }
+
+    @Test
+    @DisplayName("should throw IllegalArgumentException if password is empty")
+    void shouldThrowIllegalArgumentExceptionIfPasswordIsEmpty() {
+        //given
+        final String oldUserEmail = "oldEmail@email.com";
+        final String newUserEmail = "newEmail@email.com";
+        final String oldPassword = "oldHashedPassword";
+        final String newPassword = "  ";
+        final String oldUsername = "oldUsername";
+        final String newUsername = "newUsername";
+
+        final InformationsToUpdate informationsToUpdate = new InformationsToUpdate();
+        informationsToUpdate.setEmail(newUserEmail);
+        informationsToUpdate.setPassword(newPassword);
+        informationsToUpdate.setUsername(newUsername);
+
+        final AppUser currentUser = AppUser.builder()
+                .email(oldUserEmail)
+                .username(oldUsername)
+                .role(Role.USER)
+                .password(oldPassword)
+                .account(BigDecimal.TEN)
+                .friends(Collections.emptySet())
+                .build();
+        given(appUserRepository.findByEmail(oldUserEmail)).willReturn(Optional.of(currentUser));
+
+        //when & then
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUserProfil(oldUserEmail,informationsToUpdate));
+    }
+
+    @Test
+    @DisplayName("should throw IllegalArgumentException if username is empty")
+    void shouldThrowIllegalArgumentExceptionIfUsernameIsEmpty() {
+        //given
+        final String oldUserEmail = "oldEmail@email.com";
+        final String newUserEmail = "newEmail@email.com";
+        final String oldPassword = "oldHashedPassword";
+        final String newPassword = "newHashedPassword";
+        final String oldUsername = "oldUsername";
+        final String newUsername = "  ";
+
+        final InformationsToUpdate informationsToUpdate = new InformationsToUpdate();
+        informationsToUpdate.setEmail(newUserEmail);
+        informationsToUpdate.setPassword(newPassword);
+        informationsToUpdate.setUsername(newUsername);
+
+        final AppUser currentUser = AppUser.builder()
+                .email(oldUserEmail)
+                .username(oldUsername)
+                .role(Role.USER)
+                .password(oldPassword)
+                .account(BigDecimal.TEN)
+                .friends(Collections.emptySet())
+                .build();
+        given(appUserRepository.findByEmail(oldUserEmail)).willReturn(Optional.of(currentUser));
+
+        //when & then
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUserProfil(oldUserEmail,informationsToUpdate));
+    }
+
+    @Test
+    @DisplayName("should update only username")
+    void shouldUpdateOnlyUsername() {
+        //given
+        final String oldUserEmail = "oldEmail@email.com";
+        final String newUserEmail = null;
+        final String oldPassword = "oldHashedPassword";
+        final String newPassword = null;
+        final String oldUsername = "oldUsername";
+        final String newUsername = "newUsername";
+
+        final InformationsToUpdate informationsToUpdate = new InformationsToUpdate();
+        informationsToUpdate.setEmail(newUserEmail);
+        informationsToUpdate.setPassword(newPassword);
+        informationsToUpdate.setUsername(newUsername);
+
+        final AppUser currentUser = AppUser.builder()
+                .email(oldUserEmail)
+                .username(oldUsername)
+                .role(Role.USER)
+                .password(oldPassword)
+                .account(BigDecimal.TEN)
+                .friends(Collections.emptySet())
+                .build();
+        given(appUserRepository.findByEmail(oldUserEmail)).willReturn(Optional.of(currentUser));
+
+        //when
+        userService.updateUserProfil(oldUserEmail,informationsToUpdate);
+        verify(appUserRepository, times(1)).save(userArgumentCaptor.capture());
+        final AppUser expectedUser = userArgumentCaptor.getValue();
+        assertEquals(newUsername, expectedUser.getUsername());
+        assertEquals(oldPassword, expectedUser.getPassword());
+        assertEquals(oldUserEmail, expectedUser.getEmail());
+        assertEquals(currentUser.getAccount(), expectedUser.getAccount());
+        assertEquals(currentUser.getFriends(), expectedUser.getFriends());
+    }
+
+    @Test
+    @DisplayName("should update only email")
+    void shouldUpdateOnlyEmail() {
+        //given
+        final String oldUserEmail = "oldEmail@email.com";
+        final String newUserEmail = "newEmail@email.com";
+        final String oldPassword = "oldHashedPassword";
+        final String newPassword = null;
+        final String oldUsername = "oldUsername";
+        final String newUsername = null;
+
+        final InformationsToUpdate informationsToUpdate = new InformationsToUpdate();
+        informationsToUpdate.setEmail(newUserEmail);
+        informationsToUpdate.setPassword(newPassword);
+        informationsToUpdate.setUsername(newUsername);
+
+        final AppUser currentUser = AppUser.builder()
+                .email(oldUserEmail)
+                .username(oldUsername)
+                .role(Role.USER)
+                .password(oldPassword)
+                .account(BigDecimal.TEN)
+                .friends(Collections.emptySet())
+                .build();
+        given(appUserRepository.findByEmail(oldUserEmail)).willReturn(Optional.of(currentUser));
+
+        //when
+        userService.updateUserProfil(oldUserEmail,informationsToUpdate);
+        verify(appUserRepository, times(1)).save(userArgumentCaptor.capture());
+        final AppUser expectedUser = userArgumentCaptor.getValue();
+        assertEquals(oldUsername, expectedUser.getUsername());
+        assertEquals(oldPassword, expectedUser.getPassword());
+        assertEquals(newUserEmail, expectedUser.getEmail());
+        assertEquals(currentUser.getAccount(), expectedUser.getAccount());
+        assertEquals(currentUser.getFriends(), expectedUser.getFriends());
+    }
+
+    @Test
+    @DisplayName("should update only password")
+    void shouldUpdateOnlyPassword() {
+        //given
+        final String oldUserEmail = "oldEmail@email.com";
+        final String newUserEmail = null;
+        final String oldPassword = "oldHashedPassword";
+        final String newPassword = "newHashedPassword";
+        final String oldUsername = "oldUsername";
+        final String newUsername = null;
+
+        final InformationsToUpdate informationsToUpdate = new InformationsToUpdate();
+        informationsToUpdate.setEmail(newUserEmail);
+        informationsToUpdate.setPassword(newPassword);
+        informationsToUpdate.setUsername(newUsername);
+
+        final AppUser currentUser = AppUser.builder()
+                .email(oldUserEmail)
+                .username(oldUsername)
+                .role(Role.USER)
+                .password(oldPassword)
+                .account(BigDecimal.TEN)
+                .friends(Collections.emptySet())
+                .build();
+        given(appUserRepository.findByEmail(oldUserEmail)).willReturn(Optional.of(currentUser));
+        given(passwordEncoder.encode(newPassword)).willReturn(newPassword);
+        //when
+        userService.updateUserProfil(oldUserEmail,informationsToUpdate);
+        verify(appUserRepository, times(1)).save(userArgumentCaptor.capture());
+        final AppUser expectedUser = userArgumentCaptor.getValue();
+        assertEquals(oldUsername, expectedUser.getUsername());
+        assertEquals(newPassword, expectedUser.getPassword());
+        assertEquals(oldUserEmail, expectedUser.getEmail());
+        assertEquals(currentUser.getAccount(), expectedUser.getAccount());
+        assertEquals(currentUser.getFriends(), expectedUser.getFriends());
     }
 
 }

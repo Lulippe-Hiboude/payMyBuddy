@@ -4,6 +4,7 @@ import com.lulippe.paymybuddy.bankTransfer.model.BankTransferResponse;
 import com.lulippe.paymybuddy.bankTransfer.model.BankWithdrawResponse;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.enums.Role;
+import com.lulippe.paymybuddy.user.model.InformationsToUpdate;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
 import com.lulippe.paymybuddy.user.model.UserFriend;
 import jakarta.validation.constraints.NotNull;
@@ -54,5 +55,10 @@ public interface AppUserMapper {
     @Mapping(target = "receiver", source = "username")
     @Mapping(target = "newBalance", source = "account")
     @Mapping(target = "amount", source = "amountToWithdraw")
-    BankWithdrawResponse toBankWithdrawResponse(BigDecimal account, BigDecimal amountToWithdraw, String username);
+    BankWithdrawResponse toBankWithdrawResponse(final BigDecimal account, final BigDecimal amountToWithdraw, final String username);
+
+    @Mapping(target = "username", source = "username")
+    @Mapping(target = "email", source = "email")
+    @Mapping(target = "password", source = "password")
+    AppUser updateUserInformation(@MappingTarget final AppUser currentUser, final InformationsToUpdate informationsToUpdate);
 }
