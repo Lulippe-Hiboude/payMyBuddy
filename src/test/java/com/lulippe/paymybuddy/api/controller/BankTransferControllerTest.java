@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lulippe.paymybuddy.api.exception.InvalidDataException;
 import com.lulippe.paymybuddy.bankTransfer.model.BankTransferRequest;
 import com.lulippe.paymybuddy.bankTransfer.model.BankTransferResponse;
+import com.lulippe.paymybuddy.bankTransfer.model.BankWithdrawResponse;
 import com.lulippe.paymybuddy.service.BankTransferService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -89,5 +90,39 @@ class BankTransferControllerTest {
                         .content(objectMapper.writeValueAsString(request))
                 )
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "test@test.com", roles = "USER")
+    @DisplayName("should perform transfer to Bank")
+    void shouldPerformTransferToBank() throws Exception {
+        //given
+        final String email = "test@test.com";
+        final String username = "testUsername";
+        final String iban = "FR7712739000408237965421Y19";
+        final String testBankHolder = "testBankHolder";
+        final double amount = 20.126;
+        final BankTransferRequest request = new BankTransferRequest();
+        request.setAmount(amount);
+        request.setBankHolder(testBankHolder);
+        request.setIban(iban);
+        String amountToWithdraw = String.valueOf(amount);
+        final BankWithdrawResponse bankWithdrawResponse = new BankWithdrawResponse();
+        bankWithdrawResponse.setReceiver(username);
+        bankWithdrawResponse.setAmount(amountToWithdraw);
+        String newBalance = "5.00";
+        bankWithdrawResponse.setNewBalance(newBalance);
+        given(bankTransferService.performTransferToBank(request, email)).willReturn(bankWithdrawResponse);
+
+        //when & then
+        mockMvc.perform(post("/transfer-to-bank/v0")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.receiver").value(username))
+                .andExpect(jsonPath("$.amount").value(amountToWithdraw))
+                .andExpect(jsonPath("$.newBalance").value(newBalance));
     }
 }

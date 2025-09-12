@@ -1,13 +1,16 @@
 package com.lulippe.paymybuddy.mapper;
 
 import com.lulippe.paymybuddy.bankTransfer.model.BankTransferResponse;
+import com.lulippe.paymybuddy.bankTransfer.model.BankWithdrawResponse;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.enums.Role;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
 import com.lulippe.paymybuddy.user.model.UserFriend;
+import jakarta.validation.constraints.NotNull;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -48,4 +51,8 @@ public interface AppUserMapper {
     @Mapping(target = "friendName", source = "username")
     UserFriend toUserFriend(final String username);
 
+    @Mapping(target = "receiver", source = "username")
+    @Mapping(target = "newBalance", source = "account")
+    @Mapping(target = "amount", source = "amountToWithdraw")
+    BankWithdrawResponse toBankWithdrawResponse(BigDecimal account, BigDecimal amountToWithdraw, String username);
 }
