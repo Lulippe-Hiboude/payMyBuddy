@@ -44,6 +44,38 @@ paths:
             text/plain:
               schema:
                 type: string
+  /transfer-to-bank/v0:
+    post:
+      tags:
+        - "BankTransfer"
+      summary: Transfer money from PayMyBuddy account to Bank account
+      operationId: "transferToBank"
+      security:
+        - cookieAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankTransferRequest'
+      responses:
+        '200':
+          description: "OK - transfer to bank successful"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankWithdrawResponse'
+        '404':
+          description: "Not found - no user found with this email address"
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: string
 components:
   securitySchemes:
     cookieAuth:
@@ -74,8 +106,23 @@ components:
       properties:
         amount:
           type: string
+          description: "new balance for user in PMB"
+          example: "20.00"
+        receiver:
+          type: string
+          description: "The PayMyBuddy user who received the transfer"
+    BankWithdrawResponse:
+      type: object
+      properties:
+        amount:
+          type: string
           description: "transferred amount"
           example: "20.00"
         receiver:
           type: string
           description: "The PayMyBuddy user who received the transfer"
+        newBalance:
+          type: string
+          description: "the new balance for user in PMB"
+          example: "20.00"
+

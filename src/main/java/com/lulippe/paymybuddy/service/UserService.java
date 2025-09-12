@@ -1,6 +1,7 @@
 package com.lulippe.paymybuddy.service;
 
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
+import com.lulippe.paymybuddy.api.exception.InsufficientFundsException;
 import com.lulippe.paymybuddy.api.exception.NonexistentEntityException;
 import com.lulippe.paymybuddy.bankTransfer.model.BankTransferRequest;
 import com.lulippe.paymybuddy.mapper.AppUserMapper;
@@ -121,5 +122,18 @@ public class UserService {
     public List<UserFriend> getAllUserFriend(final String userEmail) {
         final AppUser currentUser = getAppUserByEmail(userEmail);
         return  AppUserMapper.INSTANCE.toUserFriendList(currentUser.getFriends());
+    }
+
+    public void withdrawToBank(final AppUser user, final BigDecimal amountToWithdraw) {
+
+        checkSufficientFunds(user.getAccount(),amountToWithdraw);
+        user.setAccount(user.getAccount().subtract(amountToWithdraw));
+        appUserRepository.save(user);
+    }
+
+    private void checkSufficientFunds(final BigDecimal accountFund, final BigDecimal amountToTransfer) {
+        if (accountFund.compareTo(amountToTransfer) < 0) {
+            throw new InsufficientFundsException("insufficient funds for transfer");
+        }
     }
 }

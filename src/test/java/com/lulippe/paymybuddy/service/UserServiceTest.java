@@ -1,6 +1,7 @@
 package com.lulippe.paymybuddy.service;
 
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
+import com.lulippe.paymybuddy.api.exception.InsufficientFundsException;
 import com.lulippe.paymybuddy.api.exception.NonexistentEntityException;
 import com.lulippe.paymybuddy.bankTransfer.model.BankTransferRequest;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
@@ -21,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -479,6 +481,50 @@ class UserServiceTest {
 
         //then
         assertEquals(0, result.size());
+    }
+
+    @Test
+    @DisplayName("should withdraw the amount to bank")
+    void shouldWithdrawTheAmountToBank() {
+        //given
+        final String userEmail = "test@email.com";
+        final String userPassword = "hashedPassword";
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(Collections.emptySet())
+                .build();
+        final BigDecimal amountToWithdraw = BigDecimal.valueOf(5.00);
+
+        //when
+        userService.withdrawToBank(currentUser, amountToWithdraw);
+
+        //then
+        verify(appUserRepository, times(1)).save(userArgumentCaptor.capture());
+        final AppUser expectedUser = userArgumentCaptor.getValue();
+        assertEquals(expectedUser.getAccount(), amountToWithdraw);
+    }
+
+    @Test
+    @DisplayName("should throw InsufficientFundsException if amount to withdraw is too much")
+    void shouldThrowInsufficientFundsExceptionIfInsufficientFundsException() {
+        //given
+        final String userEmail = "test@email.com";
+        final String userPassword = "hashedPassword";
+        final AppUser currentUser = AppUser.builder()
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(Collections.emptySet())
+                .build();
+        final BigDecimal amountToWithdraw = BigDecimal.valueOf(15.00);
+
+        //when & then
+        assertThrows(InsufficientFundsException.class, () -> userService.withdrawToBank(currentUser, amountToWithdraw));
+        verify(appUserRepository, times(0)).save(any());
     }
 
 }
