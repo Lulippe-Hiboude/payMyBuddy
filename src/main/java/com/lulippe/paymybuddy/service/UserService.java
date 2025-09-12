@@ -7,12 +7,16 @@ import com.lulippe.paymybuddy.bankTransfer.model.BankTransferRequest;
 import com.lulippe.paymybuddy.mapper.AppUserMapper;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.repository.AppUserRepository;
+import com.lulippe.paymybuddy.user.model.InformationsToUpdate;
 import com.lulippe.paymybuddy.user.model.RegisterRequest;
 import com.lulippe.paymybuddy.user.model.UserFriend;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,6 +29,7 @@ import java.util.Set;
 @Slf4j
 public class UserService {
     private final AppUserRepository appUserRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public void ensureUsernameAndEmailAreUnique(final String username, final String email) {
         if (appUserRepository.existsByUsernameOrEmail(username, email)) {
@@ -134,6 +139,40 @@ public class UserService {
     private void checkSufficientFunds(final BigDecimal accountFund, final BigDecimal amountToTransfer) {
         if (accountFund.compareTo(amountToTransfer) < 0) {
             throw new InsufficientFundsException("insufficient funds for transfer");
+        }
+    }
+
+    public void updateUserProfil(final String userEmail, final InformationsToUpdate informationsToUpdate) {
+        final AppUser currentUser = getAppUserByEmail(userEmail);
+        validateInformationsToUpdate(informationsToUpdate);
+        ensureUsernameAndEmailAreUniqueForUpdate(informationsToUpdate);
+        if (informationsToUpdate.getPassword() != null) {
+            informationsToUpdate.setPassword(passwordEncoder.encode(informationsToUpdate.getPassword()));
+        }
+        updateUserInformation(currentUser,informationsToUpdate);
+    }
+
+    private void ensureUsernameAndEmailAreUniqueForUpdate(final InformationsToUpdate informationsToUpdate) {
+        if (informationsToUpdate.getUsername() != null || informationsToUpdate.getEmail() != null) {
+            ensureUsernameAndEmailAreUnique(informationsToUpdate.getUsername(), informationsToUpdate.getEmail());
+        }
+    }
+
+    private void updateUserInformation(final AppUser currentUser, final InformationsToUpdate informationsToUpdate) {
+        appUserRepository.save(AppUserMapper.INSTANCE.updateUserInformation(currentUser,informationsToUpdate));
+    }
+
+    private void validateInformationsToUpdate(final InformationsToUpdate informationsToUpdate) {
+        if (informationsToUpdate.getEmail() != null && !StringUtils.hasText(informationsToUpdate.getEmail())) {
+            throw new IllegalArgumentException("email cannot be empty");
+        }
+
+        if (informationsToUpdate.getUsername() != null && !StringUtils.hasText(informationsToUpdate.getUsername())) {
+            throw new IllegalArgumentException("username cannot be empty");
+        }
+
+        if (informationsToUpdate.getPassword() != null && !StringUtils.hasText(informationsToUpdate.getPassword())) {
+            throw new IllegalArgumentException("password cannot be empty");
         }
     }
 }

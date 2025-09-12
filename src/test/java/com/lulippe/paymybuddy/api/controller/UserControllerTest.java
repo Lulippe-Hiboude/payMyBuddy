@@ -3,6 +3,7 @@ package com.lulippe.paymybuddy.api.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
 import com.lulippe.paymybuddy.service.UserService;
+import com.lulippe.paymybuddy.user.model.InformationsToUpdate;
 import com.lulippe.paymybuddy.user.model.UserFriend;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,8 +23,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -132,5 +132,31 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
+
+    @Test
+    @WithMockUser(username = "test@test.com", roles = "USER")
+    @DisplayName("Should update user information")
+    void shouldUpdateUserInformation() throws Exception {
+        //given
+        final String userEmail = "test@test.com";
+        final String newUserEmail = "newEmail@email.com";
+        final String newPassword = "newHashedPassword";
+        final String newUsername = "newUsername";
+
+        final InformationsToUpdate informationsToUpdate = new InformationsToUpdate();
+        informationsToUpdate.setEmail(newUserEmail);
+        informationsToUpdate.setPassword(newPassword);
+        informationsToUpdate.setUsername(newUsername);
+
+        doNothing().when(userService).updateUserProfil(userEmail,informationsToUpdate);
+
+        //when & then
+        mockMvc.perform(patch("/users/me/v0")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(informationsToUpdate))
+        ).andExpect(status().isOk());
+    }
+
 
 }

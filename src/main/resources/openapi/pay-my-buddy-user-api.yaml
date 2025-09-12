@@ -94,6 +94,32 @@ paths:
                   $ref: '#/components/schemas/UserFriend'
         '401':
           description: "authentication failed"
+  /users/me/v0:
+    patch:
+      tags:
+        - "User"
+      summary: "Update current user's profile"
+      operationId: "updateUserProfile"
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InformationsToUpdate'
+      responses:
+        '200':
+          description: "Profile updated successfully"
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "User profile updated"
+        '400':
+          description: "Bad Request - empty fields are not allowed"
+        '401':
+          description: "Authentication required"
 components:
   securitySchemes:
     cookieAuth:
@@ -131,4 +157,19 @@ components:
       properties:
         friendName:
           type: string
+    InformationsToUpdate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: "New email"
+        username:
+          type: string
+          description: "New username"
+        password:
+          type: string
+          description: "New password"
+
+
 
