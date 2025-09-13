@@ -20,4 +20,13 @@ public class HomeController {
         model.addAttribute("currentPath", request.getRequestURI());
         return "home/transfer";
     }
+
+    @GetMapping("/friends/add")
+    public String showFriendsAddPage(HttpServletRequest request, Model model) {
+        log.info("showFriendsAddPage");
+        model.addAttribute("currentPath", request.getRequestURI());
+        return "home/friendsAdd";
+    }
+
+
 }

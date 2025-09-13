@@ -1,19 +1,22 @@
-.transfer-form {
+.friend-add-form {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     width: 100%;
-    margin-top: 100px;
+    margin-top: 300px;
     padding: 0 20px;
     box-sizing: border-box;
 }
-
-.transfer-item {
-    flex: 1;
+.friend-add-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
 }
 
-.transfer-item input,
-.transfer-item select {
+.friend-add-item input{
+    width: 300px;
     background-color: white;
     color: black;
     border: 1px solid #ccc;
@@ -22,28 +25,13 @@
     font-size: 14px;
     box-sizing: border-box;
 }
-.amount-item {
-    flex: 0 0 80px;
-    justify-content: center;
-}
-.amount-input {
-    width: 100%;
-    height: 80px;
-    font-size: 16px;
-    padding: 0 8px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background-color: white;
-    color: black;
-    box-sizing: border-box;
-}
 
-.transfer-item button.submit-button {
-    width: 30%;
+.friend-add-item button.add-button{
+    width: 120px;
     height: 50px;
     border-radius: 6px;
     border: none;
-    background-color: #0056b3;
+    background-color: #cc6600;
     color: white;
     font-weight: bold;
     font-size: 14px;
@@ -52,22 +40,22 @@
 }
 
 /* hover */
-.transfer-item button.submit-button:hover {
-    background-color: #004494;
+.friend-add-item button.add-button:hover {
+    background-color: #994c00;
 }
 
-.transfer-message {
+.friend-add-message {
     margin-top: 8px;
     font-weight: bold;
     font-size: 14px;
     min-height: 20px;
 }
 
-.transfer-message.success {
+.friend-add-message.success {
     color: green;
 }
 
-.transfer-message.error {
+.friend-add-message.error {
     color: red;
 }
 

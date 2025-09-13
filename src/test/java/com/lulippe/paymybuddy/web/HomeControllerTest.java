@@ -25,4 +25,12 @@ class HomeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("home/transfer"));
     }
+
+    @Test
+    @DisplayName("should show add friend form")
+    void shouldShowAddFriendForm() throws Exception {
+        mockMvc.perform(get("/home/friends/add"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("home/friendsAdd"));
+    }
 }
