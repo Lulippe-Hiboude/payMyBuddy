@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+
+<head th:replace="fragment/header :: commonHeader('Home-Profil - Pay My Buddy')">
+    <link rel="stylesheet" href="/css/profil.css">
+    <title>Profil</title>
+</head>
+
+<body>
+<div th:replace="fragment/header-connected :: connectedHeader"></div>
+<div class="profil-form">
+    <div class="profil-form-item">
+        <label for="usernameInput" class="sr-only">Username</label>
+        <input type="text"
+               id="usernameInput"
+               placeholder="@username"
+               maxlength="30"
+               class="username-input"
+        >
+    </div>
+    <div class="profil-form-item">
+        <label for="mailInput" class="sr-only">Mail</label>
+        <input type="text"
+               id="mailInput"
+               placeholder="nom@domain.com"
+               maxlength="30"
+               class="mail-input"
+        >
+    </div>
+    <div class="profil-form-item">
+        <label for="passwordInput" class="sr-only">Mot de passe</label>
+        <input type="text"
+               id="passwordInput"
+               placeholder="mot de passe"
+               maxlength="30"
+               class="password-input"
+        >
+    </div>
+    <div class="profil-form-item">
+        <button class="submit-button" onclick="submitProfil()">Modifier</button>
+        <div id="profilMessage" class="profil-message"></div>
+    </div>
+</div>
+
+<script>
+    async function submitProfil() {
+        const usernameInput = document.getElementById('usernameInput').value.trim();
+        const mailInput = document.getElementById('mailInput').value.trim();
+        const passwordInput = document.getElementById('passwordInput').value.trim();
+
+        const mailModified = mailInput && mailInput.trim() !== "";
+
+        const informationToUpdate = {};
+        if (usernameInput!== "")informationToUpdate.username=usernameInput;
+        if (mailInput!== "")informationToUpdate.email=mailInput;
+        if (passwordInput!== "")informationToUpdate.password=passwordInput;
+
+        const messageContainer = document.getElementById('profilMessage');
+        messageContainer.textContent = "";
+        messageContainer.classList.remove('success', 'error');
+
+        try {
+            const response = await fetch('/users/me/v0', {
+                method: 'PATCH',
+                credentials: 'include',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(informationToUpdate)
+            });
+            const textResponse = await response.text();
+
+            if (response.ok) {
+                messageContainer.classList.add('success');
+                messageContainer.textContent = textResponse;
+
+                if (mailModified){
+                    setTimeout(()=> {
+                        window.location.href="/auth/login";
+                    },1500)
+                }
+
+            } else {
+                messageContainer.classList.add('error');
+                messageContainer.textContent = "Erreur: " + textResponse;
+            }
+        } catch (err) {
+            console.error("Erreur réseau:", err);
+            messageContainer.classList.add('error');
+            messageContainer.textContent = "Erreur réseau, réessayez.";
+        }
+    }
+</script>

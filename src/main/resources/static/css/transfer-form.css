@@ -3,7 +3,7 @@
     align-items: center;
     gap: 10px;
     width: 100%;
-    margin-top: 100px;
+    margin-top: 160px;
     padding: 0 20px;
     box-sizing: border-box;
 }
@@ -18,8 +18,9 @@
     color: black;
     border: 1px solid #ccc;
     border-radius: 6px;
-    padding: 10px;
-    font-size: 14px;
+    padding: 0 15px;
+    height: 60px;
+    font-size: 18px;
     box-sizing: border-box;
 }
 .amount-item {
@@ -49,6 +50,7 @@
     font-size: 14px;
     cursor: pointer;
     box-sizing: border-box;
+    margin-left: 120px;
 }
 
 /* hover */
@@ -72,5 +74,5 @@
 }
 
 input::placeholder {
-    color: darkgray;
+    color: #242424;
 }

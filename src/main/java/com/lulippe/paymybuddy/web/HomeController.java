@@ -28,5 +28,11 @@ public class HomeController {
         return "home/friendsAdd";
     }
 
+    @GetMapping("/profil")
+    public String showProfilPage(HttpServletRequest request, Model model) {
+        log.info("showProfilPage");
+        model.addAttribute("currentPath", request.getRequestURI());
+        return "home/profil";
+    }
 
 }

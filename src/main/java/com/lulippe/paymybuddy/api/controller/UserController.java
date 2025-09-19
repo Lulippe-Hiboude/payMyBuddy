@@ -1,6 +1,5 @@
 package com.lulippe.paymybuddy.api.controller;
 
-import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.service.UserService;
 import com.lulippe.paymybuddy.user.api.UserApi;
 import com.lulippe.paymybuddy.user.api.UsersConnectionsApi;
