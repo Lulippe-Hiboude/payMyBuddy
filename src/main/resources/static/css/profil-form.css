@@ -1,0 +1,64 @@
+.profil-form {
+    display: grid;
+    grid-template-columns: 150px 1fr; /* colonne labels + colonne inputs */
+    row-gap: 20px;
+    column-gap: 20px;
+    max-width: 400px;
+    margin: 180px auto 0; /* centré + espace sous header */
+    align-items: center;
+}
+.profil-form-item label {
+    font-size: 18px;   /* augmente la taille (16px par défaut généralement) */
+    font-weight: bold; /* optionnel : texte plus marqué */
+}
+
+.profil-form-item {
+    display: contents; /* permet aux enfants (label + input) de suivre la grille */
+}
+.profil-form-item input {
+    border: none;
+    outline: none;
+    font-size: 16px;
+    padding: 8px 0;
+    width: 100%;
+    background: transparent;
+}
+.profil-form-item input::after {
+    content: " >"; /* petit chevron */
+}
+.profil-form-item:last-child {
+    grid-column: 2; /* place le bouton sur la colonne de droite */
+    display: flex;
+    justify-content: flex-end;
+}
+.submit-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background-color: #cc6600;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.profil-form-item .submit-button:hover {
+    background-color: #994c00;
+}
+
+input::placeholder {
+    color: #242424;
+}
+
+.profil-message {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.profil-message.success {
+    color: green;
+}
+
+.profil-message.error {
+    color: red;
+}
