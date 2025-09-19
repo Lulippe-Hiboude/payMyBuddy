@@ -28,6 +28,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/css/**",
+                                "/favicon.ico",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
@@ -50,6 +51,11 @@ public class SecurityConfiguration {
                         .defaultSuccessUrl("/home/transfer", true)
                         .failureUrl("/auth/login?error")
                 )
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout")
+                        .logoutSuccessUrl("/auth/login?logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID"))
                 .userDetailsService(userDetailsService)
                 .build();
     }
