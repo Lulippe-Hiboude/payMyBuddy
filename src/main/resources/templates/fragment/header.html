@@ -1,11 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
-<head th:fragment="commonHeader(title)">
+<head th:fragment="commonHeader(title,cssPath)">
     <meta charset="UTF-8">
     <title th:text="${title}">default title</title>
-    <link rel="stylesheet" href="/css/register.css" th:if="${title == 'Register - Pay My Buddy'}">
-    <link rel="stylesheet" href="/css/login.css" th:if="${title == 'Login - Pay My Buddy'}">
-    <link rel="stylesheet" href="/css/transfer.css" th:if="${title == 'Home-Tranfer - Pay My Buddy'}">
-    <link rel="stylesheet" href="/css/friends-add.css" th:if="${title == 'Home-Add-Friends - Pay My Buddy'}">
-    <link rel="stylesheet" href="/css/profil.css" th:if="${title == 'Home-Profil - Pay My Buddy'}">
+    <link th:href="@{${cssPath}}" rel="stylesheet">
 </head>
