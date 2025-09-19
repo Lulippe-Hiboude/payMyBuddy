@@ -33,4 +33,12 @@ class HomeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("home/friendsAdd"));
     }
+
+    @Test
+    @DisplayName("should show profil form")
+    void shouldShowProfilForm() throws Exception {
+        mockMvc.perform(get("/home/profil"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("home/profil"));
+    }
 }

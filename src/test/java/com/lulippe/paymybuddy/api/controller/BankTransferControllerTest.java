@@ -106,11 +106,11 @@ class BankTransferControllerTest {
         request.setAmount(amount);
         request.setBankHolder(testBankHolder);
         request.setIban(iban);
-        String amountToWithdraw = String.valueOf(amount);
+        final String amountToWithdraw = String.valueOf(amount);
+        final String newBalance = "5.00";
         final BankWithdrawResponse bankWithdrawResponse = new BankWithdrawResponse();
         bankWithdrawResponse.setReceiver(username);
         bankWithdrawResponse.setAmount(amountToWithdraw);
-        String newBalance = "5.00";
         bankWithdrawResponse.setNewBalance(newBalance);
         given(bankTransferService.performTransferToBank(request, email)).willReturn(bankWithdrawResponse);
 
