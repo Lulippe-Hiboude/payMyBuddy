@@ -187,8 +187,6 @@ public class UserControllerIT {
         informationsToUpdate.setEmail(newEmail);
         informationsToUpdate.setPassword(newPassword);
 
-        final String expectedJson = objectMapper.writeValueAsString(informationsToUpdate);
-
         //when & then
         mockMvc.perform(patch("/users/me/v0")
                 .with(csrf())

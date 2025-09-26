@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -192,6 +193,25 @@ class TransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(transfer))
         ).andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "test@test.com", roles = "USER")
+    @DisplayName("should return Bad Request when transfer is invalid")
+    void shouldReturnBadRequestWhenTransferIsInvalid() throws Exception {
+        String invalidJson = """
+            {
+              "friendName": "Jean",
+              "amount": ""
+            }
+            """;
+
+        mockMvc.perform(post("/transactions/v1/me")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("amount")));
     }
 
     @Test

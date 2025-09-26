@@ -98,10 +98,17 @@ components:
   schemas:
     Transfer:
       type: object
+      required:
+        - amount
+        - friendName
       properties:
         friendName:
           type: string
+          description: "the name of the friend"
         description:
           type: string
         amount:
           type: string
+          minLength: 1
+          pattern: '^\S+$'
+          description: "Transfert amount is mandatory and must be a positive number"
