@@ -2,7 +2,7 @@ package com.lulippe.paymybuddy.service;
 
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
 import com.lulippe.paymybuddy.api.exception.InsufficientFundsException;
-import com.lulippe.paymybuddy.api.exception.NonexistentEntityException;
+import com.lulippe.paymybuddy.api.exception.NonExistentEntityException;
 import com.lulippe.paymybuddy.bankTransfer.model.BankTransferRequest;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.enums.Role;
@@ -116,7 +116,7 @@ class UserServiceTest {
         given(appUserRepository.findByEmail(email)).willReturn(Optional.empty());
 
         //when & then
-        NonexistentEntityException exception = assertThrows(NonexistentEntityException.class, () -> userService.getAppUserByEmail(email));
+        NonExistentEntityException exception = assertThrows(NonExistentEntityException.class, () -> userService.getAppUserByEmail(email));
         assertEquals("User with email test@email.com does not exist", exception.getMessage());
     }
 
@@ -356,7 +356,7 @@ class UserServiceTest {
         given(appUserRepository.findByUsername(username)).willReturn(Optional.empty());
 
         //when
-        assertThrows(NonexistentEntityException.class, () -> userService.getAppUserByName(username));
+        assertThrows(NonExistentEntityException.class, () -> userService.getAppUserByName(username));
     }
 
     @Test
@@ -424,7 +424,7 @@ class UserServiceTest {
         final BigDecimal commission = BigDecimal.TEN;
         given(appUserRepository.findBySystemAccountTrue()).willReturn(Optional.empty());
 
-        assertThrows(NonexistentEntityException.class, () -> userService.handleSystemAccount(commission));
+        assertThrows(NonExistentEntityException.class, () -> userService.handleSystemAccount(commission));
     }
 
     @Test

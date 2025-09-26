@@ -1,6 +1,7 @@
 package com.lulippe.paymybuddy.service;
 
 import com.lulippe.paymybuddy.api.exception.InsufficientFundsException;
+import com.lulippe.paymybuddy.api.exception.NonExistentEntityException;
 import com.lulippe.paymybuddy.mapper.TransactionMapper;
 import com.lulippe.paymybuddy.persistence.entities.AppUser;
 import com.lulippe.paymybuddy.persistence.entities.Transaction;
@@ -27,6 +28,13 @@ public class TransactionService {
     private final UserService userService;
     private final TransactionRepository transactionRepository;
 
+    /**
+     * Retrieves the list of transactions sent by a given user.
+     *
+     * @param email the email of the user whose sent transactions should be retrieved
+     * @return a list of {@link Transfer} objects representing the transactions sent by the user
+     * @throws NonExistentEntityException if no user is found with the provided email
+     */
     public List<Transfer> getUserSentTransactionList(final String email) {
         final AppUser appUser = userService.getAppUserByEmail(email);
         final List<Transaction> transactions = getUserTransactionList(appUser);
@@ -40,6 +48,16 @@ public class TransactionService {
         return transactionRepository.findAllBySender(appUser);
     }
 
+    /**
+     * Sends money from the current user to a friend without commission.
+     *
+     * @param transfer  the {@link Transfer} object containing the recipient and transfer details
+     * @param userEmail the email of the sender user
+     * @return a confirmation message describing the transfer
+     * @throws com.lulippe.paymybuddy.api.exception.NonExistentEntityException if either the sender or receiver user does not exist
+     * @throws IllegalArgumentException                                        if the receiver is not in the sender's friends list
+     * @throws InsufficientFundsException                                      if the sender has insufficient funds
+     */
     public String sendMoneyToFriend(final Transfer transfer, final String userEmail) {
         final AppUser senderAppUser = userService.getAppUserByEmail(userEmail);
         final AppUser receiverAppUser = userService.getAppUserByName(transfer.getFriendName());
@@ -49,6 +67,19 @@ public class TransactionService {
         return processMoneyTransfer(senderAppUser, receiverAppUser, transferAmount, transfer.getDescription());
     }
 
+    /**
+     * Sends money from the current user to a friend with a commission applied.
+     * <p>
+     * The commission is calculated as 0.5% of the transfer amount and is credited to the system account.
+     * </p>
+     *
+     * @param transfer  the {@link Transfer} object containing the recipient and transfer details
+     * @param userEmail the email of the sender user
+     * @return a confirmation message describing the transfer, including commission details
+     * @throws com.lulippe.paymybuddy.api.exception.NonExistentEntityException if either the sender or receiver user does not exist
+     * @throws IllegalArgumentException                                        if the receiver is not in the sender's friends list
+     * @throws InsufficientFundsException                                      if the sender has insufficient funds for both the transfer and the commission
+     */
     public String sendMoneyToFriendV1(final Transfer transfer, final String userEmail) {
         final AppUser senderAppUser = userService.getAppUserByEmail(userEmail);
         final AppUser receiverAppUser = userService.getAppUserByName(transfer.getFriendName());
