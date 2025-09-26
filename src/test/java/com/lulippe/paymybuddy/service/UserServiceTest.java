@@ -771,4 +771,34 @@ class UserServiceTest {
         assertEquals(currentUser.getFriends(), expectedUser.getFriends());
     }
 
+    @Test
+    @DisplayName("should throw IllegalArgumentException if all informations are null")
+    void shouldThrowIllegalArgumentExceptionIfAllInformationsAreNull() {
+        //given
+        final String oldUserEmail = "oldEmail@email.com";
+        final String newUserEmail = null;
+        final String oldPassword = "oldHashedPassword";
+        final String newPassword = null;
+        final String oldUsername = "oldUsername";
+        final String newUsername = null;
+
+        final InformationsToUpdate informationsToUpdate = new InformationsToUpdate();
+        informationsToUpdate.setEmail(newUserEmail);
+        informationsToUpdate.setPassword(newPassword);
+        informationsToUpdate.setUsername(newUsername);
+
+        final AppUser currentUser = AppUser.builder()
+                .email(oldUserEmail)
+                .username(oldUsername)
+                .role(Role.USER)
+                .password(oldPassword)
+                .account(BigDecimal.TEN)
+                .friends(Collections.emptySet())
+                .build();
+        given(appUserRepository.findByEmail(oldUserEmail)).willReturn(Optional.of(currentUser));
+
+        //when & then
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUserProfil(oldUserEmail,informationsToUpdate));
+    }
+
 }

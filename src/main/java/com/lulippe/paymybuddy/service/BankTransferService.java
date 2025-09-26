@@ -31,7 +31,6 @@ public class BankTransferService {
     }
 
 
-
     private void validateRequest(BankTransferRequest request) {
         if (!IbanUtil.isIbanValid(request.getIban())) {
             log.error("Invalid IBAN");
@@ -53,7 +52,7 @@ public class BankTransferService {
         final AppUser user = userService.getAppUserByEmail(email);
         validateRequest(request);
         final BigDecimal amountToWithdraw = BigDecimal.valueOf(request.getAmount()).setScale(2, RoundingMode.HALF_EVEN);
-        userService.withdrawToBank(user,amountToWithdraw);
-       return AppUserMapper.INSTANCE.toBankWithdrawResponse(user.getAccount(),amountToWithdraw,user.getUsername());
+        userService.withdrawToBank(user, amountToWithdraw);
+        return AppUserMapper.INSTANCE.toBankWithdrawResponse(user.getAccount(), amountToWithdraw, user.getUsername());
     }
 }

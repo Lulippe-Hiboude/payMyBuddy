@@ -3,9 +3,11 @@ package com.lulippe.paymybuddy.api.controller;
 import com.lulippe.paymybuddy.service.TransactionService;
 import com.lulippe.paymybuddy.transaction.api.TransactionsApi;
 import com.lulippe.paymybuddy.transaction.model.Transfer;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -36,7 +38,7 @@ public class TransactionController implements TransactionsApi {
     }
 
     @Override
-    public ResponseEntity<String> transferToFriendV1(Transfer transfer) {
+    public ResponseEntity<String> transferToFriendV1(@Valid final Transfer transfer) {
         final String email = getAuthenticatedUserEmail();
         final String response = transactionService.sendMoneyToFriendV1(transfer, email);
         return ResponseEntity.ok(response);

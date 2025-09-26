@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -163,6 +164,9 @@ public class UserService {
     }
 
     private void validateInformationsToUpdate(final InformationsToUpdate informationsToUpdate) {
+        if(verifyInformationsToUpdate(informationsToUpdate)) {
+            throw new IllegalArgumentException("the form must have some values");
+        }
         if (informationsToUpdate.getEmail() != null && !StringUtils.hasText(informationsToUpdate.getEmail())) {
             throw new IllegalArgumentException("email cannot be empty");
         }
@@ -174,5 +178,14 @@ public class UserService {
         if (informationsToUpdate.getPassword() != null && !StringUtils.hasText(informationsToUpdate.getPassword())) {
             throw new IllegalArgumentException("password cannot be empty");
         }
+    }
+
+    private boolean verifyInformationsToUpdate(final InformationsToUpdate informationsToUpdate) {
+       return Stream.of(
+               informationsToUpdate.getEmail(),
+               informationsToUpdate.getUsername(),
+               informationsToUpdate.getPassword()
+               )
+       .allMatch(Strings::isBlank);
     }
 }
