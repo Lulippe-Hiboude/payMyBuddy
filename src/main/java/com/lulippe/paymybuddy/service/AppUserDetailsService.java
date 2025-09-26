@@ -20,15 +20,30 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+/**
+ * Custom implementation of {@link UserDetailsService} for loading user-specific data.
+ * <p>
+ * This service is used by Spring Security during the authentication process
+ * to fetch user details (email, password, roles) from the persistence layer.
+ * </p>
+ */
 public class AppUserDetailsService implements UserDetailsService {
     private final AppUserRepository userRepository;
 
+    /**
+     * Loads a user's details based on their email (used as the username).
+     *
+     * @param email the email of the user attempting to authenticate
+     * @return a {@link UserDetails} object containing the user's credentials and authorities
+     * @throws UsernameNotFoundException if no user is found with the provided email
+     */
     @Override
     public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
         final AppUser appUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("username not found" + email));
         return new User(appUser.getEmail(), appUser.getPassword(), getGrantedAuthorities(appUser.getRole().getRoleName()));
     }
+
 
     private List<GrantedAuthority> getGrantedAuthorities(final String role) {
         List<GrantedAuthority> authorities = new ArrayList<>();

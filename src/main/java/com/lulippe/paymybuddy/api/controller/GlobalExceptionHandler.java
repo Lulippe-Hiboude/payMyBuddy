@@ -3,7 +3,7 @@ package com.lulippe.paymybuddy.api.controller;
 import com.lulippe.paymybuddy.api.exception.EntityAlreadyExistsException;
 import com.lulippe.paymybuddy.api.exception.InsufficientFundsException;
 import com.lulippe.paymybuddy.api.exception.InvalidDataException;
-import com.lulippe.paymybuddy.api.exception.NonexistentEntityException;
+import com.lulippe.paymybuddy.api.exception.NonExistentEntityException;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +34,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
-    @ExceptionHandler({NonexistentEntityException.class})
-    public ResponseEntity<String> handleNonexistentEntityException(final NonexistentEntityException e) {
+    @ExceptionHandler({NonExistentEntityException.class})
+    public ResponseEntity<String> handleNonexistentEntityException(final NonExistentEntityException e) {
         logRequestFailed(e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
@@ -46,8 +46,6 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             if ("amount".equals(error.getField())) {
                 errors.put("amount", "amount is mandatory and must be positive");
-            } else if ("friendEmail".equals(error.getField())) {
-                errors.put("friendEmail", "friendEmail is mandatory and must be a valid email address");
             } else {
                 errors.put(error.getField(), error.getDefaultMessage());
             }

@@ -2,7 +2,7 @@ package com.lulippe.paymybuddy.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lulippe.paymybuddy.api.exception.InsufficientFundsException;
-import com.lulippe.paymybuddy.api.exception.NonexistentEntityException;
+import com.lulippe.paymybuddy.api.exception.NonExistentEntityException;
 import com.lulippe.paymybuddy.service.TransactionService;
 import com.lulippe.paymybuddy.transaction.model.Transfer;
 import org.junit.jupiter.api.DisplayName;
@@ -72,7 +72,7 @@ class TransactionControllerTest {
     void shouldThrowEntityNotFoundException() throws Exception {
         //given
         final String email = "test@test.com";
-        doThrow(new NonexistentEntityException("User with email " + email + " does not exist")).when(transactionService).getUserSentTransactionList(email);
+        doThrow(new NonExistentEntityException("User with email " + email + " does not exist")).when(transactionService).getUserSentTransactionList(email);
 
         //when & then
         mockMvc.perform(get("/transactions/v0/me"))

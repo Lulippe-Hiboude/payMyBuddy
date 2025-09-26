@@ -23,6 +23,19 @@ import java.math.RoundingMode;
 public class BankTransferService {
     private final UserService userService;
 
+    /**
+     * Performs a bank transfer from the specified user to their in-app account.
+     * <p>
+     * The method validates the transfer request, updates the user’s account balance,
+     * and returns a response containing the updated user information.
+     * </p>
+     *
+     * @param request the {@link BankTransferRequest} containing transfer details (IBAN, amount, bank holder)
+     * @param email   the email of the user performing the transfer
+     * @return a {@link BankTransferResponse} containing updated user account information
+     * @throws com.lulippe.paymybuddy.api.exception.NonExistentEntityException if no user is found with the given email
+     * @throws com.lulippe.paymybuddy.api.exception.InvalidDataException       if the request contains invalid data (e.g., IBAN, amount, or holder)
+     */
     public BankTransferResponse performBankTransfer(final BankTransferRequest request, final String email) {
         final AppUser user = userService.getAppUserByEmail(email);
         validateRequest(request);
@@ -48,6 +61,20 @@ public class BankTransferService {
         }
     }
 
+    /**
+     * Performs a withdrawal from the user’s in-app account to their bank account.
+     * <p>
+     * The method validates the withdrawal request, checks the available funds,
+     * debits the user’s account, and returns a response containing withdrawal details.
+     * </p>
+     *
+     * @param request the {@link BankTransferRequest} containing withdrawal details (IBAN, amount, bank holder)
+     * @param email   the email of the user performing the withdrawal
+     * @return a {@link BankWithdrawResponse} containing updated balance, withdrawn amount, and username
+     * @throws com.lulippe.paymybuddy.api.exception.NonExistentEntityException if no user is found with the given email
+     * @throws com.lulippe.paymybuddy.api.exception.InvalidDataException       if the request contains invalid data (e.g., IBAN, amount, or holder)
+     * @throws com.lulippe.paymybuddy.api.exception.InsufficientFundsException if the user does not have enough balance for the withdrawal
+     */
     public BankWithdrawResponse performTransferToBank(final BankTransferRequest request, final String email) {
         final AppUser user = userService.getAppUserByEmail(email);
         validateRequest(request);
