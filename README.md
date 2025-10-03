@@ -44,6 +44,10 @@ The following schema represents the physical structure of the database used in t
 - Foreign keys enforce referential integrity.
 - The model is designed to avoid redundancy and optimize joins.
 
+## Database Migrations
+- **Liquibase** is used to manage database migrations and versioning for PostgresSQL.
+- Migration scripts are located in `src/main/resources/db/changelog`.
+
 ## Error Handling
 The API uses standard HTTP status codes to indicate the result of an API request.
 Some common responses:
