@@ -75,5 +75,5 @@ To run this project locally, ensure you have the following installed:
   
 Clone the repository : git clone https://github.com/Lulippe-Hiboude/payMyBuddy.git
 
-To access the website : http://localhost:8080/auth/login
-To access the swagger / rest-api : http://localhost:8080/swagger-ui/index.html
+- To access the website : http://localhost:8080/auth/login
+- To access the swagger / rest-api : http://localhost:8080/swagger-ui/index.html
