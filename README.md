@@ -74,3 +74,6 @@ To run this project locally, ensure you have the following installed:
 - **PostgresSQL** (configured database instance, e.g., via **pgAdmin**)
   
 Clone the repository : git clone https://github.com/Lulippe-Hiboude/payMyBuddy.git
+
+To access the website : http://localhost:8080/auth/login
+To access the swagger / rest-api : http://localhost:8080/swagger-ui/index.html
