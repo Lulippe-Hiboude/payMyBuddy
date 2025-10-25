@@ -283,4 +283,45 @@ class TransactionServiceTest {
         //when & then
         assertThrows(InsufficientFundsException.class, () -> transactionService.sendMoneyToFriendV1(transfer,userEmail));
     }
+    @Test
+    @DisplayName("should throw IllegalArgumentException if amount is negative")
+    void shouldThrowIllegalArgumentExceptionIfAmountIsNegative() {
+        //given
+        final String userEmail = "test@email.com";
+        final String friendEmail = "friend@email.com";
+        final String userPassword = "hashedPassword";
+        final String friendName = "friendName";
+        final String descriptionTest = "test";
+        final String amount = "-5.00";
+        final Transfer transfer = new Transfer();
+        transfer.setFriendName(friendName);
+        transfer.setAmount(amount);
+        transfer.setDescription(descriptionTest);
+
+        final Set<AppUser> friendFriends = new HashSet<>();
+        final AppUser friendUser = AppUser.builder()
+                .username(friendName)
+                .email(friendEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(friendFriends)
+                .build();
+        final Set<AppUser> userFriends = new HashSet<>();
+        userFriends.add(friendUser);
+        final AppUser currentUser = AppUser.builder()
+                .username("currentUser")
+                .email(userEmail)
+                .role(Role.USER)
+                .password(userPassword)
+                .account(BigDecimal.TEN)
+                .friends(userFriends)
+                .build();
+        given(userService.getAppUserByEmail(userEmail)).willReturn(currentUser);
+        given(userService.getAppUserByName(friendName)).willReturn(friendUser);
+        doNothing().when(userService).checkIfReceiverIsAFriend(friendUser, currentUser);
+
+        //when & then
+        assertThrows(IllegalArgumentException.class, () -> transactionService.sendMoneyToFriendV1(transfer,userEmail));
+    }
 }

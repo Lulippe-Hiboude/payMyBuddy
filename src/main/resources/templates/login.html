@@ -14,6 +14,10 @@
 
     <form class="form-box" method="post" th:action="@{/auth/login}">
 
+        <div class="message" th:if="${param.error}" style="color:red;">
+            Identifiants invalides. Veuillez réessayer.
+        </div>
+
         <div class="form-group">
             <label for="username">Mail</label>
             <input type="email" id="username" placeholder="Mail" name="username" required/>
@@ -25,10 +29,6 @@
         </div>
 
         <button type="submit" class="submit-button" >Se connecter</button>
-
-        <div class="message" th:if="${param.error}" style="color:red;">
-            Identifiants invalides. Veuillez réessayer.
-        </div>
 
     </form>
 </div>

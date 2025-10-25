@@ -63,6 +63,7 @@ public class TransactionService {
         final AppUser receiverAppUser = userService.getAppUserByName(transfer.getFriendName());
         userService.checkIfReceiverIsAFriend(receiverAppUser, senderAppUser);
         final BigDecimal transferAmount = stringToBigDecimal(transfer.getAmount());
+        checkPositiveTransfertAmount(transferAmount);
         checkSufficientFunds(transferAmount, senderAppUser.getAccount());
         return processMoneyTransfer(senderAppUser, receiverAppUser, transferAmount, transfer.getDescription());
     }
@@ -85,10 +86,18 @@ public class TransactionService {
         final AppUser receiverAppUser = userService.getAppUserByName(transfer.getFriendName());
         userService.checkIfReceiverIsAFriend(receiverAppUser, senderAppUser);
         final BigDecimal transferAmount = stringToBigDecimal(transfer.getAmount());
+        checkPositiveTransfertAmount(transferAmount);
         final BigDecimal commission = transferAmount.multiply(BigDecimal.valueOf(0.005)).setScale(2, RoundingMode.HALF_EVEN);
         final BigDecimal totalDebit = transferAmount.add(commission);
         checkSufficientFunds(totalDebit, senderAppUser.getAccount());
         return processMoneyTransferV1(senderAppUser, receiverAppUser, transferAmount, commission, totalDebit, transfer.getDescription());
+    }
+
+    private static void checkPositiveTransfertAmount(final BigDecimal transferAmount) {
+        if(transferAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            log.error("Transfer amount must be greater than zero : {}", transferAmount);
+            throw new IllegalArgumentException("Transfer amount must be greater than zero");
+        }
     }
 
     private void checkSufficientFunds(final BigDecimal transferAmount, final BigDecimal currentBalance) {

@@ -235,4 +235,27 @@ class TransactionControllerTest {
                 .content(objectMapper.writeValueAsString(transfer))
         ).andExpect(status().isBadRequest());
     }
+
+    @Test
+    @WithMockUser(username = "test@test.com", roles = "USER")
+    @DisplayName("should return Bad Request when amount is negative")
+    void shouldReturnBadRequestWhenAmountIsNegative() throws Exception {
+        //given
+        final String email = "test@test.com";
+        final String friendName= "friend";
+        final String amount = "-10.00";
+        final String description = "description";
+        final Transfer transfer = new Transfer();
+        transfer.setFriendName(friendName);
+        transfer.setAmount(amount);
+        transfer.setDescription(description);
+        doThrow(new IllegalArgumentException("Transfer amount must be greater than zero")).when(transactionService).sendMoneyToFriendV1(transfer,email);
+
+        //when & then
+        mockMvc.perform(post("/transactions/v1/me")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transfer))
+        ).andExpect(status().isBadRequest());
+    }
 }
